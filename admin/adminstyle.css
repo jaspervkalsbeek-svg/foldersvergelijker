@@ -1,0 +1,674 @@
+/* ============================================================
+   admin.css  –  shared stylesheet for the entire admin panel
+   ============================================================
+   TODO: Tweak the :root variables below to restyle everything
+   ============================================================ */
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* ── Design tokens ─────────────────────────────────────────── */
+:root {
+    /* TODO: Brand colours */
+    --yellow:       #FFD600;
+    --yellow-dim:   rgba(255, 214, 0, 0.08);
+    --black:        #0a0a0a;
+    --surface:      #111111;
+    --card:         #1a1a1a;
+
+    /* TODO: Border colours */
+    --border:       rgba(255, 214, 0, 0.15);
+    --border-subtle:rgba(255, 255, 255, 0.07);
+
+    /* TODO: Input / text */
+    --input-bg:     rgba(255, 255, 255, 0.06);
+    --text-muted:   rgba(255, 255, 255, 0.4);
+    --text-dim:     rgba(255, 255, 255, 0.6);
+
+    /* TODO: Shape & motion */
+    --radius:       12px;
+    --radius-sm:    8px;
+    --transition:   0.2s ease;
+}
+
+/* ── Base ──────────────────────────────────────────────────── */
+body {
+    background:  var(--black);
+    font-family: 'DM Sans', sans-serif;
+    color:       #fff;
+    min-height:  100vh;
+    line-height: 1.5;
+}
+
+/* ── Sidebar ───────────────────────────────────────────────── */
+.sidebar {
+    position:   fixed;
+    top: 0; left: 0;
+    width:      240px;
+    height:     100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding:    32px 16px;
+    display:    flex;
+    flex-direction: column;
+    gap:        2px;
+    z-index:    10;
+    overflow-y: auto;
+}
+
+.sidebar-logo {
+    font-family:   'Bebas Neue', sans-serif;
+    font-size:     1.6rem;
+    color:         var(--yellow);
+    letter-spacing:2px;
+    margin-bottom: 32px;
+    padding:       0 8px 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.sidebar-logo span {
+    display:       block;
+    font-family:   'DM Sans', sans-serif;
+    font-size:     0.7rem;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:         var(--text-muted);
+    margin-top:    3px;
+}
+
+.nav-label {
+    font-size:     0.65rem;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:         var(--text-muted);
+    padding:       16px 12px 6px;
+}
+
+.nav-item {
+    display:        flex;
+    align-items:    center;
+    gap:            10px;
+    padding:        10px 12px;
+    border-radius:  var(--radius-sm);
+    text-decoration:none;
+    color:          var(--text-dim);
+    font-size:      0.88rem;
+    font-weight:    400;
+    transition:     all var(--transition);
+    border:         1px solid transparent;
+}
+
+.nav-item:hover,
+.nav-item.active {
+    background:  var(--yellow-dim);
+    color:       var(--yellow);
+    border-color:var(--border);
+}
+
+.nav-item.active {
+    font-weight: 500;
+}
+
+.nav-item .icon {
+    font-size:  1rem;
+    width:      20px;
+    text-align: center;
+    flex-shrink:0;
+}
+
+.sidebar-footer {
+    margin-top:   auto;
+    padding-top:  20px;
+    border-top:   1px solid var(--border);
+}
+
+.sidebar-footer a {
+    display:        flex;
+    align-items:    center;
+    gap:            10px;
+    padding:        10px 12px;
+    border-radius:  var(--radius-sm);
+    text-decoration:none;
+    color:          var(--text-muted);
+    font-size:      0.85rem;
+    transition:     color var(--transition);
+}
+
+.sidebar-footer a:hover {
+    color: var(--yellow);
+}
+
+/* ── Main content ──────────────────────────────────────────── */
+.main {
+    margin-left: 240px;
+    padding:     48px 52px;
+    max-width:   960px;
+    min-height:  100vh;
+}
+
+/* ── Page header ───────────────────────────────────────────── */
+.page-header {
+    margin-bottom: 40px;
+}
+
+.page-header h1 {
+    font-family:   'Bebas Neue', sans-serif;
+    font-size:     2.8rem;
+    letter-spacing:2px;
+    line-height:   1;
+    color:         #fff;
+}
+
+.page-header p {
+    color:      var(--text-muted);
+    margin-top: 8px;
+    font-size:  0.9rem;
+}
+
+/* ── Back link ─────────────────────────────────────────────── */
+.back {
+    display:        inline-flex;
+    align-items:    center;
+    gap:            6px;
+    color:          var(--text-muted);
+    text-decoration:none;
+    font-size:      0.82rem;
+    margin-bottom:  28px;
+    transition:     color var(--transition);
+    letter-spacing: 0.3px;
+}
+
+.back:hover {
+    color: var(--yellow);
+}
+
+/* ── Section card ──────────────────────────────────────────── */
+.section {
+    background:    var(--card);
+    border:        1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding:       28px 26px;
+    margin-bottom: 20px;
+    transition:    border-color var(--transition);
+}
+
+.section:focus-within {
+    border-color: var(--border);
+}
+
+.section-title {
+    font-family:   'Bebas Neue', sans-serif;
+    font-size:     1.2rem;
+    letter-spacing:1.5px;
+    color:         var(--yellow);
+    margin-bottom: 22px;
+    padding-bottom:12px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+/* ── Form fields ───────────────────────────────────────────── */
+.field {
+    margin-bottom: 16px;
+}
+
+.field:last-child {
+    margin-bottom: 0;
+}
+
+label {
+    display:       block;
+    font-size:     0.72rem;
+    font-weight:   600;
+    letter-spacing:1.2px;
+    text-transform:uppercase;
+    color:         var(--text-muted);
+    margin-bottom: 7px;
+}
+
+input,
+select,
+textarea {
+    width:       100%;
+    background:  var(--input-bg);
+    border:      1px solid var(--border-subtle);
+    border-radius:var(--radius);
+    padding:     11px 14px;
+    color:       #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size:   0.93rem;
+    transition:  border-color var(--transition), background var(--transition);
+    appearance:  none;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: rgba(255, 255, 255, 0.2);
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline:    none;
+    border-color:var(--yellow);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+textarea {
+    resize:     vertical;
+    min-height: 90px;
+    line-height:1.6;
+}
+
+select option {
+    background: #1a1a1a;
+    color:      #fff;
+}
+
+/* ── Layout helpers ────────────────────────────────────────── */
+.row {
+    display:   flex;
+    gap:       14px;
+    flex-wrap: wrap;         /* wraps on narrow viewports */
+}
+
+.row .field {
+    flex:      1;
+    min-width: 160px;
+}
+
+/* ── Helper text ───────────────────────────────────────────── */
+.hint {
+    font-size:  0.76rem;
+    color:      var(--text-muted);
+    margin-top: 6px;
+    line-height:1.4;
+}
+
+/* ── Ticket-type child rows (add_festival) ─────────────────── */
+.ticket-type-row {
+    background:    rgba(255, 255, 255, 0.03);
+    border:        1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding:       16px;
+    margin-bottom: 12px;
+    position:      relative;
+}
+
+.ticket-type-row .remove-btn {
+    position:   absolute;
+    top: 12px; right: 12px;
+    background: none;
+    border:     none;
+    color:      rgba(255, 255, 255, 0.3);
+    cursor:     pointer;
+    font-size:  1rem;
+    transition: color var(--transition);
+}
+
+.ticket-type-row .remove-btn:hover {
+    color: #f44336;
+}
+
+.add-type-btn {
+    width:        100%;
+    padding:      10px;
+    background:   var(--yellow-dim);
+    border:       1px dashed rgba(255, 214, 0, 0.3);
+    border-radius:10px;
+    color:        var(--yellow);
+    font-family:  'DM Sans', sans-serif;
+    font-size:    0.9rem;
+    cursor:       pointer;
+    transition:   all var(--transition);
+    margin-top:   4px;
+}
+
+.add-type-btn:hover {
+    background:   rgba(255, 214, 0, 0.1);
+    border-color: var(--yellow);
+}
+
+/* ── Submit button ─────────────────────────────────────────── */
+.submit-btn {
+    width:         100%;
+    padding:       15px;
+    background:    var(--yellow);
+    color:         var(--black);
+    border:        none;
+    border-radius: var(--radius);
+    font-family:   'Bebas Neue', sans-serif;
+    font-size:     1.25rem;
+    letter-spacing:2px;
+    cursor:        pointer;
+    transition:    opacity var(--transition), transform var(--transition), box-shadow var(--transition);
+    margin-top:    8px;
+}
+
+.submit-btn:hover {
+    opacity:    0.92;
+    transform:  translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 214, 0, 0.25);
+}
+
+.submit-btn:active {
+    transform:  translateY(0);
+    box-shadow: none;
+}
+
+/* ── Alerts ────────────────────────────────────────────────── */
+.alert {
+    display:     flex;
+    align-items: flex-start;
+    gap:         10px;
+    padding:     14px 18px;
+    border-radius:var(--radius);
+    margin-bottom:24px;
+    font-size:   0.88rem;
+    line-height: 1.5;
+}
+
+.alert::before {
+    font-size:  1rem;
+    flex-shrink:0;
+    margin-top: 1px;
+}
+
+.alert.success {
+    background: rgba(76, 175, 80, 0.1);
+    border:     1px solid rgba(76, 175, 80, 0.25);
+    color:      #a5d6a7;
+}
+
+.alert.success::before {
+    content: '✓';
+    color:   #81c784;
+}
+
+.alert.error {
+    background: rgba(244, 67, 54, 0.1);
+    border:     1px solid rgba(244, 67, 54, 0.25);
+    color:      #ef9a9a;
+}
+
+.alert.error::before {
+    content: '!';
+    color:   #e57373;
+}
+
+/* ── Dashboard: stats grid ─────────────────────────────────── */
+.stats-grid {
+    display:               grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap:                   16px;
+    margin-bottom:         48px;
+}
+
+.stat-card {
+    background:    var(--card);
+    border:        1px solid var(--border);
+    border-radius: var(--radius);
+    padding:       20px;
+}
+
+.stat-value {
+    font-family:'Bebas Neue', sans-serif;
+    font-size:  2.2rem;
+    color:      var(--yellow);
+    line-height:1;
+}
+
+.stat-label {
+    font-size:     0.78rem;
+    color:         var(--text-muted);
+    margin-top:    4px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+}
+
+/* ── Dashboard: quick-add cards grid ──────────────────────── */
+.cards-grid {
+    display:               grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap:                   16px;
+    margin-bottom:         48px;
+}
+
+.card {
+    background:     var(--card);
+    border:         1px solid var(--border);
+    border-radius:  14px;
+    padding:        24px;
+    text-decoration:none;
+    color:          inherit;
+    transition:     all var(--transition);
+    display:        block;
+}
+
+.card:hover {
+    border-color:var(--yellow);
+    transform:   translateY(-2px);
+    box-shadow:  0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.card-icon {
+    font-size:     1.8rem;
+    margin-bottom: 14px;
+}
+
+.card-title {
+    font-weight:   600;
+    font-size:     0.95rem;
+    margin-bottom: 6px;
+}
+
+.card-desc {
+    font-size:  0.8rem;
+    color:      var(--text-muted);
+    line-height:1.5;
+}
+
+.card-action {
+    display:    inline-flex;
+    align-items:center;
+    gap:        6px;
+    margin-top: 16px;
+    font-size:  0.8rem;
+    color:      var(--yellow);
+    font-weight:500;
+}
+
+/* ── Dashboard: featured festival card ────────────────────── */
+.festival-card {
+    background:     linear-gradient(135deg, rgba(255, 214, 0, 0.08), rgba(255, 214, 0, 0.03));
+    border:         1px solid rgba(255, 214, 0, 0.3);
+    border-radius:  16px;
+    padding:        32px;
+    text-decoration:none;
+    color:          inherit;
+    transition:     all var(--transition);
+    display:        flex;
+    align-items:    center;
+    gap:            24px;
+    margin-bottom:  48px;
+}
+
+.festival-card:hover {
+    border-color:var(--yellow);
+    box-shadow:  0 8px 32px rgba(255, 214, 0, 0.1);
+}
+
+.festival-card-icon {
+    font-size:  3rem;
+    flex-shrink:0;
+}
+
+.festival-card-content h2 {
+    font-family:   'Bebas Neue', sans-serif;
+    font-size:     1.8rem;
+    letter-spacing:1px;
+    color:         var(--yellow);
+    margin-bottom: 6px;
+}
+
+.festival-card-content p {
+    font-size:  0.88rem;
+    color:      var(--text-muted);
+    line-height:1.5;
+    max-width:  500px;
+}
+
+.festival-card-arrow {
+    margin-left:0;
+    margin-left:auto;
+    font-size:  1.5rem;
+    color:      var(--yellow);
+    flex-shrink:0;
+}
+
+/* ── Scraper control panel ───────────────────────────────── */
+.scrape-result {
+    margin-bottom: 28px;
+}
+
+.scrape-log {
+    background: #0d0d0d;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    font-family: 'DM Sans', monospace;
+    font-size: 0.82rem;
+    line-height: 1.7;
+    color: #aed581;
+    white-space: pre-wrap;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.store-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+    margin-bottom: 32px;
+}
+
+.store-card {
+    background: var(--card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    padding: 18px 20px 16px;
+    transition: all var(--transition);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.store-card:hover {
+    border-color: var(--border);
+}
+
+.scrape-all-card {
+    border-color: rgba(255, 214, 0, 0.2);
+    background: linear-gradient(135deg, rgba(255, 214, 0, 0.06), rgba(255, 214, 0, 0.02));
+}
+
+.store-card-body {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    margin-bottom: 14px;
+}
+
+.store-card-icon {
+    font-size: 1.6rem;
+    line-height: 1;
+    flex-shrink: 0;
+    width: 36px;
+    text-align: center;
+}
+
+.store-card-info {
+    min-width: 0;
+}
+
+.store-card-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 2px;
+}
+
+.store-card-count {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+}
+
+.store-card-last {
+    font-size: 0.72rem;
+    margin-top: 4px;
+    letter-spacing: 0.3px;
+}
+
+.store-card-last.fresh {
+    color: #81c784;
+}
+
+.store-card-last.stale {
+    color: var(--text-muted);
+}
+
+.scrape-btn {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--input-bg);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.scrape-btn:hover {
+    background: var(--yellow-dim);
+    border-color: var(--yellow);
+    color: var(--yellow);
+}
+
+.scrape-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.scrape-btn-all {
+    border-color: rgba(255, 214, 0, 0.3);
+    color: var(--yellow);
+    font-weight: 600;
+}
+
+.scrape-btn-all:hover {
+    background: rgba(255, 214, 0, 0.12);
+}
+
+.api-badge {
+    display: inline-block;
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: rgba(100, 181, 246, 0.15);
+    color: #64b5f6;
+    border: 1px solid rgba(100, 181, 246, 0.25);
+    vertical-align: middle;
+    margin-left: 4px;
+}

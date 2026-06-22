@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Hähnchenbrustfilet (400g)",
+    "category": "vlees-vis",
+    "prices": [
+      { "store": "Lidl (DE)", "price": 3.99, "unit_size": "400g", "unit_price": 9.98 },
+      { "store": "Aldi (DE)", "price": 3.79, "unit_size": "400g", "unit_price": 9.48 },
+      { "store": "Rewe", "price": 4.49, "unit_size": "400g", "unit_price": 11.23 },
+      { "store": "Netto", "price": 3.89, "unit_size": "400g", "unit_price": 9.73 }
+    ]
+  },
+  {
+    "name": "Kipfilet (300g)",
+    "category": "vlees-vis",
+    "prices": [
+      { "store": "Albert Heijn", "price": 4.69, "unit_size": "300g", "unit_price": 15.63 },
+      { "store": "Jumbo", "price": 4.49, "unit_size": "300g", "unit_price": 14.97 },
+      { "store": "Lidl", "price": 3.79, "unit_size": "300g", "unit_price": 12.63 },
+      { "store": "Aldi", "price": 3.49, "unit_size": "300g", "unit_price": 11.63 }
+    ]
+  },
+  {
+    "name": "Coca Cola 1,5L",
+    "brand": "Coca-Cola",
+    "category": "dranken",
+    "ean": "8710400444444",
+    "prices": [
+      { "store": "Albert Heijn", "price": 2.39, "unit_size": "1,5L", "unit_price": 1.59 },
+      { "store": "Jumbo", "price": 2.29, "unit_size": "1,5L", "unit_price": 1.53 },
+      { "store": "Lidl", "price": 1.79, "unit_size": "1,5L", "unit_price": 1.19 },
+      { "store": "Aldi", "price": 1.55, "unit_size": "1,5L", "unit_price": 1.03 }
+    ]
+  },
+  {
+    "name": "Bananen",
+    "category": "fruit-groente",
+    "prices": [
+      { "store": "Albert Heijn", "price": 1.59, "unit_size": "per kg", "unit_price": 1.59 },
+      { "store": "Jumbo", "price": 1.49, "unit_size": "per kg", "unit_price": 1.49 },
+      { "store": "Lidl", "price": 1.29, "unit_size": "per kg", "unit_price": 1.29 },
+      { "store": "Aldi", "price": 1.19, "unit_size": "per kg", "unit_price": 1.19 }
+    ]
+  }
+]
