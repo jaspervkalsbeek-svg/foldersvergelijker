@@ -10,6 +10,7 @@
 <body>
 <?php
 session_start();
+require_once __DIR__ . '/../include/auth.php';
 require_once __DIR__ . '/../config/database.php';
 
 $search = trim($_GET['search'] ?? '');
@@ -48,10 +49,11 @@ $products = $stmt->fetchAll();
 ?>
 <aside class="sidebar">
     <div class="sidebar-logo">Admin Panel<span>Folders Vergelijker</span></div>
-    <div class="nav-label">Beheer</div>
-    <a href="index.php" class="nav-item"><span class="icon">🏠</span> Dashboard</a>
+    <div class="nav-label">Folders Vergelijker</div>
+    <a href="index.php"       class="nav-item"><span class="icon">🏠</span> Dashboard</a>
     <a href="add_product.php" class="nav-item"><span class="icon">📦</span> Product toevoegen</a>
-    <a href="overview.php" class="nav-item active"><span class="icon">📋</span> Producten overzicht</a>
+    <a href="import.php"      class="nav-item"><span class="icon">📥</span> Import CSV/JSON</a>
+    <a href="overview.php"    class="nav-item active"><span class="icon">📋</span> Producten overzicht</a>
     <div class="sidebar-footer"><a href="../public/index.php">← Terug naar site</a></div>
 </aside>
 

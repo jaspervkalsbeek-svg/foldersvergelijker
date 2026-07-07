@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin toevoegen – Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="adminstyle.css">
 </head>
 <body>
 <?php
@@ -50,16 +50,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <aside class="sidebar">
-    <div class="sidebar-logo">Admin Panel<span>Spik &amp; Span</span></div>
-    <div class="nav-label">Beheer</div>
-    <a href="index.php"     class="nav-item"><span class="icon">🏠</span> Dashboard</a>
-    <a href="add.php"       class="nav-item"><span class="icon">🎪</span> Evenementen</a>
-    <a href="add2.php"      class="nav-item"><span class="icon">🎟️</span> Ticket types</a>
-    <a href="add3.php"      class="nav-item"><span class="icon">🏷️</span> Kortingscodes</a>
-    <a href="overview.php"  class="nav-item"><span class="icon">📦</span> Bestellingen</a>
-    <a href="view.php"      class="nav-item"><span class="icon">📋</span> Overzicht</a>
-    <a href="add_admin.php" class="nav-item active"><span class="icon">👤</span> Admin toevoegen</a>
-    <div class="sidebar-footer"><a href="../public/festivals.php">← Terug naar site</a></div>
+    <div class="sidebar-logo">Admin Panel<span>Folders Vergelijker</span></div>
+    <div class="nav-label">Folders Vergelijker</div>
+    <a href="index.php"       class="nav-item"><span class="icon">🏠</span> Dashboard</a>
+    <a href="add_product.php" class="nav-item"><span class="icon">📦</span> Product toevoegen</a>
+    <a href="import.php"      class="nav-item"><span class="icon">📥</span> Import CSV/JSON</a>
+    <a href="overview.php"    class="nav-item"><span class="icon">📋</span> Producten overzicht</a>
+    <a href="add_admin.php"   class="nav-item active"><span class="icon">👤</span> Admin toevoegen</a>
+    <div class="sidebar-footer"><a href="../public/index.php">← Terug naar site</a></div>
 </aside>
 
 <main class="main">

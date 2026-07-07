@@ -37,6 +37,7 @@
 <body>
 <?php
 session_start();
+require_once __DIR__ . '/../include/auth.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../include/functions.php';
 
@@ -123,7 +124,7 @@ function matchCategory(string $slugOrName, array $cats): ?int {
     return array_values($products);
  }
 
- // ── Parse JSON ──
+function parseJSON(string $content): array {
     $data = json_decode($content, true);
     if (!$data) return [];
 

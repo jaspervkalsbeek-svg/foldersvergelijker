@@ -4,10 +4,10 @@ require_once __DIR__ . '/../include/functions.php';
 
 $country = trim($_GET['country'] ?? '');
 
-$where = '';
+$where = 'WHERE s.active = 1';
 $params = [];
 if ($country) {
-    $where = "WHERE s.country = :country";
+    $where .= " AND s.country = :country";
     $params[':country'] = $country;
 }
 

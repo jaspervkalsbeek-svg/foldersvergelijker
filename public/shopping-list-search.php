@@ -6,6 +6,7 @@ if (strlen($q) < 2) { echo json_encode([]); exit; }
 
 $stmt = $pdo->prepare("SELECT DISTINCT p.name FROM products p
     JOIN product_prices pp ON pp.product_id = p.id
+    JOIN stores s ON s.id = pp.store_id AND s.active = 1
     WHERE p.name LIKE ? ORDER BY p.name LIMIT 15");
 $stmt->execute(["%$q%"]);
 $results = $stmt->fetchAll(PDO::FETCH_COLUMN);

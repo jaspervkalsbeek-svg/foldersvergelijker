@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($admin && password_verify($password, $admin['password'])) {
                 // Login successful
-                session_regenerate_id(true); // prevents session fixation attacks
+                session_regenerate_id(true);
                 $_SESSION['admin_id']       = $admin['id'];
                 $_SESSION['admin_username'] = $admin['username'];
 
@@ -105,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- TODO: Update project name -->
     <div class="login-logo">
         Admin Panel
-        <span>Spik &amp; Span</span>
+        <span>folder vergelijker</span>
     </div>
 
     <?php if ($error): ?>

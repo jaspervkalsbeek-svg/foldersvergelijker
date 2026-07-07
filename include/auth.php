@@ -20,7 +20,7 @@ if (empty($_SESSION['admin_id'])) {
     $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
     $host     = $_SERVER['HTTP_HOST'];
     // TODO: Update this path to match your project folder, e.g. /spikspan/admin/login.php
-    $path     = '/ow_heroes/admin/login.php';
+    $path     = '/foldersvergelijker/admin/login.php';
     header('Location: ' . $protocol . '://' . $host . $path);
     exit;
 }

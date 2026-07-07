@@ -2,6 +2,12 @@
 header('Content-Type: application/json');
 set_time_limit(0);
 
+session_start();
+if (empty($_SESSION['admin_id'])) {
+    echo json_encode(['error' => 'Unauthorized']);
+    exit;
+}
+
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../include/functions.php';
 
