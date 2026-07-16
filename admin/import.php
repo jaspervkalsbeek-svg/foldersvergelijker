@@ -217,11 +217,8 @@ function doImport(array $products, PDO $pdo, array $stores, array $cats, array &
             $row = $stmt->fetch();
 
             if ($row) {
-                if ((float)$row['price'] !== $price) {
-                    $upd = $pdo->prepare("UPDATE product_prices SET price = ?, unit_size = ?, unit_price = ?, scraped_at = NOW() WHERE id = ?");
-                    $upd->execute([$price, $unitSize, $unitPrice, (int)$row['id']]);
-                    $log[] = ['type' => 'ok', 'msg' => "Prijs geüpdatet: $name @ {$pr['store']} = €$price"];
-                }
+                $upd = $pdo->prepare("UPDATE product_prices SET price = ?, unit_size = ?, unit_price = ?, scraped_at = NOW() WHERE id = ?");
+                $upd->execute([$price, $unitSize, $unitPrice, (int)$row['id']]);
             } else {
                 $stmt = $pdo->prepare("INSERT INTO product_prices (product_id, store_id, price, unit_size, unit_price, scraped_at) VALUES (?, ?, ?, ?, ?, NOW())");
                 $stmt->execute([$productId, $storeId, $price, $unitSize, $unitPrice]);

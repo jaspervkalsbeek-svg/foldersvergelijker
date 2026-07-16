@@ -4,19 +4,20 @@ import https from "https";
 
 puppeteer.use(StealthPlugin());
 
-function fetchJson(url) {
+function fetchUrl(url, accept = "application/json") {
   return new Promise((resolve, reject) => {
     https.get(url, {
-      headers: { "User-Agent": "Mozilla/5.0", Accept: "application/json" },
+      headers: { "User-Agent": "Mozilla/5.0", Accept: accept },
     }, (res) => {
       let data = "";
       res.on("data", (c) => (data += c));
-      res.on("end", () => {
-        try { resolve(JSON.parse(data)); }
-        catch (e) { reject(e); }
-      });
+      res.on("end", () => resolve(data));
     }).on("error", reject);
   });
+}
+
+function fetchJson(url) {
+  return fetchUrl(url, "application/json").then(JSON.parse);
 }
 
 const storeName = (process.argv[2] ?? "").toLowerCase();
@@ -836,9 +837,13 @@ async function runAldiSued(browser) {
 }
 
 // ── Lidl DE custom flow (Schwarz API + gridboxes + flyer page images) ──
-const LIDL_DE_FLYER_ID = "aktionsprospekt-26-05-2026-30-05-2026-c7c3e1";
+
+// ponytail: flyer ID als CLI arg (argv[3]), hardcoded fallback; www.lidl.de is unreachable from this network
+const LIDL_DE_FLYER_ID = process.argv[3] || "aktionsprospekt-13-07-2026-18-07-2026-4ff4e5";
 
 async function runLidlDE(browser) {
+  console.error(`[lidl-de] Flyer: ${LIDL_DE_FLYER_ID}`);
+
   // Step 1: Get flyer products via Schwarz API
   console.error("[lidl-de] Ophalen flyer data via Schwarz API...");
   let flyerData;
@@ -872,7 +877,7 @@ async function runLidlDE(browser) {
     process.exit(1);
   }
 
-  // Step 2: Get prices via gridboxes API (needs browser context)
+  // Step 2: Get prices via gridboxes API (browser session cookies)
   console.error("[lidl-de] Prijzen ophalen via gridboxes API...");
   const page = await browser.newPage();
   await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
@@ -882,21 +887,25 @@ async function runLidlDE(browser) {
   await page.goto("https://www.lidl.de/", { waitUntil: "networkidle2", timeout });
   await new Promise((r) => setTimeout(r, 2000));
 
+  // Extract cookies and pass to Node fetch
+  const cookies = await page.cookies();
+  const cookieStr = cookies.map(c => `${c.name}=${c.value}`).join("; ");
+  await page.close();
+
   const products = [];
   const seen = new Set();
 
-  // Process in batches of 50
   for (let i = 0; i < uniqueIds.length; i += 50) {
     const batch = uniqueIds.slice(i, i + 50);
     console.error(`[lidl-de] Gridboxes batch ${Math.floor(i / 50) + 1}/${Math.ceil(uniqueIds.length / 50)}...`);
 
     try {
-      const data = await page.evaluate(async (ids) => {
-        const url = `https://www.lidl.de/p/api/gridboxes/DE/de?erpNumbers=${ids.join(",")}`;
-        const res = await fetch(url);
-        if (!res.ok) return [];
-        return res.json();
-      }, batch);
+      const url = `https://www.lidl.de/p/api/gridboxes/DE/de?erpNumbers=${batch.join(",")}`;
+      const res = await fetch(url, {
+        headers: { Cookie: cookieStr, "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
+      });
+      if (!res.ok) { console.error(`[lidl-de] Gridboxes HTTP ${res.status}`); continue; }
+      const data = await res.json();
 
       if (Array.isArray(data)) {
         for (const item of data) {
@@ -928,8 +937,6 @@ async function runLidlDE(browser) {
       console.error(`[lidl-de] Gridboxes batch fout: ${e.message?.slice(0, 100)}`);
     }
   }
-
-  await page.close();
 
   console.log(JSON.stringify(products));
   console.error(`[lidl-de] ${products.length} producten gevonden`);

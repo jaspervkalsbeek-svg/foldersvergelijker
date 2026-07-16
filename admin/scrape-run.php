@@ -26,7 +26,8 @@ if (!isset($available[$store])) {
 
 $info = $available[$store];
 $nodeScript = realpath(__DIR__ . '/../scrapers/node/scrape-store.mjs');
-$cmd = sprintf('node "%s" "%s" 2>&1', $nodeScript, $store);
+$flyerArg = $store === 'lidl-de' ? ' aktionsprospekt-13-07-2026-18-07-2026-4ff4e5' : '';
+$cmd = sprintf('node "%s" "%s"%s 2>&1', $nodeScript, $store, $flyerArg);
 
 exec($cmd, $out, $rc);
 
@@ -77,6 +78,7 @@ if ($rc === 0 && is_array($products) && count($products) > 0) {
             $catSlugs = [];
             foreach ($cats as $id => $slug) $catSlugs[$slug] = $id;
 
+            $batch_time = date('Y-m-d H:i:s');
             foreach ($products as $item) {
                 $name = $item['name'] ?? '';
                 if (empty($name)) continue;
@@ -150,10 +152,8 @@ if ($rc === 0 && is_array($products) && count($products) > 0) {
                 $row = $stmt->fetch();
 
                 if ($row) {
-                    if ((float)$row['price'] !== $price) {
-                        $pdo->prepare("UPDATE product_prices SET price = ?, unit_size = ?, unit_price = ?, scraped_at = NOW() WHERE id = ?")
-                            ->execute([$price, $unitSize, $unitPrice, (int)$row['id']]);
-                    }
+                    $pdo->prepare("UPDATE product_prices SET price = ?, unit_size = ?, unit_price = ?, scraped_at = NOW() WHERE id = ?")
+                        ->execute([$price, $unitSize, $unitPrice, (int)$row['id']]);
                 } else {
                     $pdo->prepare("INSERT INTO product_prices (product_id, store_id, price, unit_size, unit_price, scraped_at) VALUES (?, ?, ?, ?, ?, NOW())")
                         ->execute([$pid, (int)$storeDb['id'], $price, $unitSize, $unitPrice]);
@@ -162,17 +162,9 @@ if ($rc === 0 && is_array($products) && count($products) > 0) {
             $imported++;
         }
 
-        // Remove old prices for this store (keep newest per product, max 7 days)
-        $stmt = $pdo->prepare("DELETE pp FROM product_prices pp
-            WHERE pp.store_id = ?
-            AND NOT (pp.id IN (
-                SELECT keep_id FROM (
-                    SELECT MAX(pp2.id) as keep_id FROM product_prices pp2
-                    WHERE pp2.store_id = ? GROUP BY pp2.product_id
-                ) latest
-            ))
-            AND pp.scraped_at < DATE_SUB(NOW(), INTERVAL 7 DAY)");
-        $stmt->execute([(int)$storeDb['id'], (int)$storeDb['id']]);
+        // Remove prices not updated in this scrape
+        $stmt = $pdo->prepare("DELETE FROM product_prices WHERE store_id = ? AND scraped_at < ?");
+        $stmt->execute([(int)$storeDb['id'], $batch_time]);
         $deleted = $stmt->rowCount();
         if ($deleted > 0) $progress[] = "[cleanup] {$deleted} verouderde prijzen opgeruimd";
     } else {

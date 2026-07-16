@@ -161,6 +161,8 @@ $cheapestItems = $pdo->query("
             'kaufland'  => ['name' => 'Kaufland',            'country' => 'DE'],
             'netto'     => ['name' => 'Netto',               'country' => 'DE'],
             'lidl-de'   => ['name' => 'Lidl',                'country' => 'DE'],
+            'aldi-nord' => ['name' => 'Aldi Nord',           'country' => 'DE'],
+            'aldi-sud'  => ['name' => 'Aldi Süd',            'country' => 'DE'],
         ];
         $allAvailable = array_merge($puppeteerStores, $allefoldersStores, $kaufdaStores);
 
@@ -244,11 +246,12 @@ $cheapestItems = $pdo->query("
 <script>
 const STORE_ORDER = ['ah','lidl-nl','aldi-nl','plus'];
 const AF_STORE_ORDER = ['jumbo'];
-const KAUF_STORE_ORDER = ['rewe','kaufland','netto','lidl-de'];
+const KAUF_STORE_ORDER = ['rewe','kaufland','netto','lidl-de','aldi-nord','aldi-sud'];
 const STORE_NAMES = {
     'ah':'Albert Heijn','lidl-nl':'Lidl (NL)','aldi-nl':'Aldi (NL)',
     'plus':'Plus','rewe':'Rewe','lidl-de':'Lidl (DE)',
-    'jumbo':'Jumbo','kaufland':'Kaufland','netto':'Netto'
+    'jumbo':'Jumbo','kaufland':'Kaufland','netto':'Netto',
+    'aldi-nord':'Aldi Nord','aldi-sud':'Aldi Süd'
 };
 
 const resultDiv = document.getElementById('scrapeResult');

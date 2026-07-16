@@ -90,6 +90,7 @@ if (count($allOffers) > 0) {
             $catSlugs = [];
             foreach ($cats as $id => $slug) $catSlugs[$slug] = $id;
 
+            $batch_time = date('Y-m-d H:i:s');
             foreach ($allOffers as $item) {
                 $name = $item['name'] ?? '';
                 if (empty($name)) continue;
@@ -163,10 +164,8 @@ if (count($allOffers) > 0) {
                 $row = $stmt->fetch();
 
                 if ($row) {
-                    if ((float)$row['price'] !== $price) {
-                        $pdo->prepare("UPDATE product_prices SET price = ?, scraped_at = NOW() WHERE id = ?")
-                            ->execute([$price, (int)$row['id']]);
-                    }
+                    $pdo->prepare("UPDATE product_prices SET price = ?, scraped_at = NOW() WHERE id = ?")
+                        ->execute([$price, (int)$row['id']]);
                 } else {
                     $pdo->prepare("INSERT INTO product_prices (product_id, store_id, price, scraped_at) VALUES (?, ?, ?, NOW())")
                         ->execute([$pid, (int)$storeDb['id'], $price]);
@@ -175,17 +174,9 @@ if (count($allOffers) > 0) {
                 $imported++;
             }
 
-            // Remove old prices for this store (keep newest per product, max 7 days)
-            $stmt = $pdo->prepare("DELETE pp FROM product_prices pp
-                WHERE pp.store_id = ?
-                AND NOT (pp.id IN (
-                    SELECT keep_id FROM (
-                        SELECT MAX(pp2.id) as keep_id FROM product_prices pp2
-                        WHERE pp2.store_id = ? GROUP BY pp2.product_id
-                    ) latest
-                ))
-                AND pp.scraped_at < DATE_SUB(NOW(), INTERVAL 7 DAY)");
-            $stmt->execute([(int)$storeDb['id'], (int)$storeDb['id']]);
+            // Remove prices not updated in this scrape
+            $stmt = $pdo->prepare("DELETE FROM product_prices WHERE store_id = ? AND scraped_at < ?");
+            $stmt->execute([(int)$storeDb['id'], $batch_time]);
             $deleted = $stmt->rowCount();
             if ($deleted > 0) $progress[] = "[cleanup] {$deleted} verouderde prijzen opgeruimd";
         }
