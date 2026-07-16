@@ -93,6 +93,100 @@ function formatUnitPrice100g(?float $unitPrice): string
     return '€ ' . number_format($per100g, 2, ',', '.') . '/100g';
 }
 
+function getCategoryMap(string $lang = 'NL'): array
+{
+    static $maps = [];
+    if ($maps) return $maps[$lang] ?? $maps['NL'];
+    $maps['NL'] = [
+        'melk'=>'zuivel-eieren','kaas'=>'zuivel-eieren','yoghurt'=>'zuivel-eieren','ei'=>'zuivel-eieren',
+        'brood'=>'brood-ontbijtgranen','cracker'=>'brood-ontbijtgranen','muesli'=>'brood-ontbijtgranen',
+        'fruit'=>'fruit-groente','groente'=>'fruit-groente','appel'=>'fruit-groente','banaan'=>'fruit-groente',
+        'tomaat'=>'fruit-groente','komkommer'=>'fruit-groente','sla'=>'fruit-groente','aardappel'=>'fruit-groente',
+        'vlees'=>'vlees-vis','kip'=>'vlees-vis','rund'=>'vlees-vis','gehakt'=>'vlees-vis',
+        'vis'=>'vlees-vis','zalm'=>'vlees-vis','filet'=>'vlees-vis',
+        'diepvries'=>'diepvries','ijs'=>'diepvries',
+        'cola'=>'dranken','fris'=>'dranken','sap'=>'dranken','water'=>'dranken',
+        'bier'=>'dranken','wijn'=>'dranken','drank'=>'dranken',
+        'chips'=>'snacks-zoetigheid','chocola'=>'snacks-zoetigheid','koek'=>'snacks-zoetigheid',
+        'snoep'=>'snacks-zoetigheid','snack'=>'snacks-zoetigheid',
+        'pasta'=>'pasta-rijst','spaghetti'=>'pasta-rijst','rijst'=>'pasta-rijst',
+        'soep'=>'conserven-sauzen','saus'=>'conserven-sauzen',
+        'was'=>'huishouden','schoonmaak'=>'huishouden',
+        'shampoo'=>'persoonlijke-verzorging','tandpasta'=>'persoonlijke-verzorging',
+        'luiers'=>'baby','honden'=>'huisdier','katten'=>'huisdier',
+    ];
+    $maps['DE'] = [
+        'milch'=>'zuivel-eieren','käse'=>'zuivel-eieren','joghurt'=>'zuivel-eieren','ei'=>'zuivel-eieren',
+        'brot'=>'brood-ontbijtgranen','müsli'=>'brood-ontbijtgranen',
+        'obst'=>'fruit-groente','gemüse'=>'fruit-groente','apfel'=>'fruit-groente','banane'=>'fruit-groente',
+        'tomate'=>'fruit-groente','gurke'=>'fruit-groente','salat'=>'fruit-groente','kartoffel'=>'fruit-groente',
+        'fleisch'=>'vlees-vis','hähnchen'=>'vlees-vis','rind'=>'vlees-vis','hack'=>'vlees-vis',
+        'fisch'=>'vlees-vis','lachs'=>'vlees-vis','wurst'=>'vlees-vis',
+        'tiefkühl'=>'diepvries','eis'=>'diepvries',
+        'cola'=>'dranken','wasser'=>'dranken','saft'=>'dranken','bier'=>'dranken','wein'=>'dranken',
+        'chips'=>'snacks-zoetigheid','schokolade'=>'snacks-zoetigheid','kekse'=>'snacks-zoetigheid',
+        'bonbon'=>'snacks-zoetigheid','snack'=>'snacks-zoetigheid',
+        'pasta'=>'pasta-rijst','spaghetti'=>'pasta-rijst','reis'=>'pasta-rijst',
+        'suppe'=>'conserven-sauzen','sauce'=>'conserven-sauzen',
+        'shampoo'=>'persoonlijke-verzorging','zahnpasta'=>'persoonlijke-verzorging',
+        'windeln'=>'baby','hund'=>'huisdier','katze'=>'huisdier',
+    ];
+    return $maps[$lang] ?? $maps['NL'];
+}
+
+function categorizeProduct(string $name, array $catSlugs, string $lang = 'NL'): ?int
+{
+    $map = getCategoryMap($lang);
+    $nameLower = mb_strtolower($name);
+    foreach ($map as $keyword => $slug) {
+        if (str_contains($nameLower, $keyword)) return $catSlugs[$slug] ?? null;
+    }
+    return null;
+}
+
+function upsertProduct(PDO $pdo, string $name, ?string $brand, ?string $description, ?int $categoryId, ?string $image): int
+{
+    if ($brand !== null) {
+        $stmt = $pdo->prepare("SELECT id FROM products WHERE name = ? AND (brand = ? OR (brand IS NULL AND ? IS NULL)) LIMIT 1");
+        $stmt->execute([$name, $brand, $brand]);
+    } else {
+        $stmt = $pdo->prepare("SELECT id FROM products WHERE name = ? LIMIT 1");
+        $stmt->execute([$name]);
+    }
+    $existing = $stmt->fetch();
+
+    if ($existing) {
+        $pid = (int)$existing['id'];
+        $pdo->prepare("UPDATE products SET category_id = COALESCE(NULLIF(category_id, 0), ?), image_url = COALESCE(NULLIF(image_url, ''), ?) WHERE id = ?")
+            ->execute([$categoryId, $image, $pid]);
+        if ($description) {
+            $pdo->prepare("UPDATE products SET description = COALESCE(NULLIF(description, ''), ?) WHERE id = ? AND (description IS NULL OR description = '')")
+                ->execute([$description, $pid]);
+        }
+    } else {
+        $pdo->prepare("INSERT INTO products (name, brand, description, category_id, image_url) VALUES (?, ?, ?, ?, ?)")
+            ->execute([$name, $brand, $description, $categoryId, $image]);
+        $pid = (int)$pdo->lastInsertId();
+    }
+    return $pid;
+}
+
+function upsertPrice(PDO $pdo, int $productId, int $storeId, float $price, ?string $unitSize = null, ?float $unitPrice = null): void
+{
+    $today = date('Y-m-d');
+    $stmt = $pdo->prepare("SELECT id FROM product_prices WHERE product_id = ? AND store_id = ? AND DATE(scraped_at) = ? LIMIT 1");
+    $stmt->execute([$productId, $storeId, $today]);
+    $row = $stmt->fetch();
+
+    if ($row) {
+        $pdo->prepare("UPDATE product_prices SET price = ?, unit_size = ?, unit_price = ?, scraped_at = NOW() WHERE id = ?")
+            ->execute([$price, $unitSize, $unitPrice, (int)$row['id']]);
+    } else {
+        $pdo->prepare("INSERT INTO product_prices (product_id, store_id, price, unit_size, unit_price, scraped_at) VALUES (?, ?, ?, ?, ?, NOW())")
+            ->execute([$productId, $storeId, $price, $unitSize, $unitPrice]);
+    }
+}
+
 function getCategoryName(string $slug): string
 {
     $names = [

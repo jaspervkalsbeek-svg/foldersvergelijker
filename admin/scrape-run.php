@@ -73,7 +73,6 @@ if ($rc === 0 && is_array($products) && count($products) > 0) {
         }
 
         if ($storeDb) {
-            // Get categories
             $cats = $pdo->query("SELECT id, slug FROM categories")->fetchAll(PDO::FETCH_KEY_PAIR);
             $catSlugs = [];
             foreach ($cats as $id => $slug) $catSlugs[$slug] = $id;
@@ -87,10 +86,8 @@ if ($rc === 0 && is_array($products) && count($products) > 0) {
                 $unitSize = $item['unit_size'] ?? null;
                 $unitPrice = $item['unit_price'] ?? null;
                 $image = $item['image'] ?? null;
-
                 if ($price <= 0) continue;
 
-                // Auto-calculate unit_price if missing
                 if ($unitPrice === null && $unitSize && $price > 0) {
                     $sizeStr = str_replace(',', '.', $unitSize);
                     if (preg_match('/([0-9.]+)\s*(kg|g|l|ml)/i', $sizeStr, $m)) {
@@ -102,64 +99,10 @@ if ($rc === 0 && is_array($products) && count($products) > 0) {
                     }
                 }
 
-                // Categorize
-                $catId = null;
-                $nameLower = mb_strtolower($name);
-                $catMap = [
-                    'melk'=>'zuivel-eieren','kaas'=>'zuivel-eieren','yoghurt'=>'zuivel-eieren','ei'=>'zuivel-eieren',
-                    'brood'=>'brood-ontbijtgranen','cracker'=>'brood-ontbijtgranen','muesli'=>'brood-ontbijtgranen',
-                    'fruit'=>'fruit-groente','groente'=>'fruit-groente','appel'=>'fruit-groente','banaan'=>'fruit-groente',
-                    'tomaat'=>'fruit-groente','komkommer'=>'fruit-groente','sla'=>'fruit-groente','aardappel'=>'fruit-groente',
-                    'vlees'=>'vlees-vis','kip'=>'vlees-vis','rund'=>'vlees-vis','gehakt'=>'vlees-vis',
-                    'vis'=>'vlees-vis','zalm'=>'vlees-vis','filet'=>'vlees-vis','braadworst'=>'vlees-vis',
-                    'diepvries'=>'diepvries','ijs'=>'diepvries',
-                    'cola'=>'dranken','fris'=>'dranken','sap'=>'dranken','water'=>'dranken',
-                    'bier'=>'dranken','wijn'=>'dranken','drank'=>'dranken',
-                    'chips'=>'snacks-zoetigheid','chocola'=>'snacks-zoetigheid','koek'=>'snacks-zoetigheid',
-                    'snoep'=>'snacks-zoetigheid','snack'=>'snacks-zoetigheid',
-                    'pasta'=>'pasta-rijst','spaghetti'=>'pasta-rijst','rijst'=>'pasta-rijst',
-                    'soep'=>'conserven-sauzen','saus'=>'conserven-sauzen',
-                    'was'=>'huishouden','schoonmaak'=>'huishouden',
-                    'shampoo'=>'persoonlijke-verzorging','tandpasta'=>'persoonlijke-verzorging',
-                    'luiers'=>'baby','honden'=>'huisdier','katten'=>'huisdier',
-                ];
-                foreach ($catMap as $keyword => $slug) {
-                    if (str_contains($nameLower, $keyword)) {
-                        $catId = $catSlugs[$slug] ?? null;
-                        break;
-                    }
-                }
-
-                // Upsert product
-                $stmt = $pdo->prepare("SELECT id FROM products WHERE name = ? AND (brand = ? OR (brand IS NULL AND ? IS NULL)) LIMIT 1");
-                $stmt->execute([$name, $brand, $brand]);
-                $existing = $stmt->fetch();
-
-                if ($existing) {
-                    $pid = (int)$existing['id'];
-                    $pdo->prepare("UPDATE products SET category_id = COALESCE(NULLIF(category_id, 0), ?), image_url = COALESCE(NULLIF(image_url, ''), ?) WHERE id = ?")
-                        ->execute([$catId, $image, $pid]);
-                } else {
-                    $pdo->prepare("INSERT INTO products (name, brand, category_id, image_url) VALUES (?, ?, ?, ?)")
-                        ->execute([$name, $brand, $catId, $image]);
-                    $pid = (int)$pdo->lastInsertId();
-                }
-
-                // Upsert price
-                $today = date('Y-m-d');
-                $stmt = $pdo->prepare("SELECT id, price FROM product_prices WHERE product_id = ? AND store_id = ? AND DATE(scraped_at) = ? LIMIT 1");
-                $stmt->execute([$pid, (int)$storeDb['id'], $today]);
-                $row = $stmt->fetch();
-
-                if ($row) {
-                    $pdo->prepare("UPDATE product_prices SET price = ?, unit_size = ?, unit_price = ?, scraped_at = NOW() WHERE id = ?")
-                        ->execute([$price, $unitSize, $unitPrice, (int)$row['id']]);
-                } else {
-                    $pdo->prepare("INSERT INTO product_prices (product_id, store_id, price, unit_size, unit_price, scraped_at) VALUES (?, ?, ?, ?, ?, NOW())")
-                        ->execute([$pid, (int)$storeDb['id'], $price, $unitSize, $unitPrice]);
-                }
-
-            $imported++;
+                $catId = categorizeProduct($name, $catSlugs);
+                $pid = upsertProduct($pdo, $name, $brand, null, $catId, $image);
+                upsertPrice($pdo, $pid, (int)$storeDb['id'], $price, $unitSize, $unitPrice);
+                $imported++;
         }
 
         // Remove prices not updated in this scrape

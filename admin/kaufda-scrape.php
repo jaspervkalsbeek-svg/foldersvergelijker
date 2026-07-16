@@ -172,28 +172,9 @@ try {
 
     $storeId = (int)$storeDb['id'];
 
-    // Get categories
     $cats = $pdo->query("SELECT id, slug FROM categories")->fetchAll(PDO::FETCH_KEY_PAIR);
     $catSlugs = [];
     foreach ($cats as $id => $slug) $catSlugs[$slug] = $id;
-
-    // Category map (DE keywords)
-    $catMap = [
-        'milch' => 'zuivel-eieren', 'käse' => 'zuivel-eieren', 'joghurt' => 'zuivel-eieren', 'ei' => 'zuivel-eieren',
-        'brot' => 'brood-ontbijtgranen', 'müsli' => 'brood-ontbijtgranen',
-        'obst' => 'fruit-groente', 'gemüse' => 'fruit-groente', 'apfel' => 'fruit-groente', 'banane' => 'fruit-groente',
-        'tomate' => 'fruit-groente', 'gurke' => 'fruit-groente', 'salat' => 'fruit-groente', 'kartoffel' => 'fruit-groente',
-        'fleisch' => 'vlees-vis', 'hähnchen' => 'vlees-vis', 'rind' => 'vlees-vis', 'hack' => 'vlees-vis',
-        'fisch' => 'vlees-vis', 'lachs' => 'vlees-vis', 'wurst' => 'vlees-vis',
-        'tiefkühl' => 'diepvries', 'eis' => 'diepvries',
-        'cola' => 'dranken', 'wasser' => 'dranken', 'saft' => 'dranken', 'bier' => 'dranken', 'wein' => 'dranken',
-        'chips' => 'snacks-zoetigheid', 'schokolade' => 'snacks-zoetigheid', 'kekse' => 'snacks-zoetigheid',
-        'bonbon' => 'snacks-zoetigheid', 'snack' => 'snacks-zoetigheid',
-        'pasta' => 'pasta-rijst', 'spaghetti' => 'pasta-rijst', 'reis' => 'pasta-rijst',
-        'suppe' => 'conserven-sauzen', 'sauce' => 'conserven-sauzen',
-        'shampoo' => 'persoonlijke-verzorging', 'zahnpasta' => 'persoonlijke-verzorging',
-        'windeln' => 'baby', 'hund' => 'huisdier', 'katze' => 'huisdier',
-    ];
 
     $batch_time = date('Y-m-d H:i:s');
     foreach ($offers as $item) {
@@ -305,47 +286,9 @@ try {
             if ($ts) $validUntil = date('Y-m-d', $ts);
         }
 
-        // Categorize
-        $catId = null;
-        $nameLower = mb_strtolower($title);
-        foreach ($catMap as $keyword => $slug) {
-            if (str_contains($nameLower, $keyword)) {
-                $catId = $catSlugs[$slug] ?? null;
-                break;
-            }
-        }
-
-        // Upsert product
-        $stmt = $pdo->prepare("SELECT id FROM products WHERE name = ? AND (brand = ? OR (brand IS NULL AND ? IS NULL)) LIMIT 1");
-        $stmt->execute([$title, $brand, $brand]);
-        $existing = $stmt->fetch();
-
-        if ($existing) {
-            $pid = (int)$existing['id'];
-            $pdo->prepare("UPDATE products SET category_id = COALESCE(NULLIF(category_id, 0), ?), image_url = COALESCE(NULLIF(image_url, ''), ?) WHERE id = ?")
-                ->execute([$catId, $image, $pid]);
-            $pdo->prepare("UPDATE products SET description = COALESCE(NULLIF(description, ''), ?) WHERE id = ? AND (description IS NULL OR description = '')")
-                ->execute([$description, $pid]);
-        } else {
-            $pdo->prepare("INSERT INTO products (name, brand, description, category_id, image_url) VALUES (?, ?, ?, ?, ?)")
-                ->execute([$title, $brand, $description, $catId, $image]);
-            $pid = (int)$pdo->lastInsertId();
-        }
-
-        // Upsert price
-        $today = date('Y-m-d');
-        $stmt = $pdo->prepare("SELECT id, price FROM product_prices WHERE product_id = ? AND store_id = ? AND DATE(scraped_at) = ? LIMIT 1");
-        $stmt->execute([$pid, $storeId, $today]);
-        $row = $stmt->fetch();
-
-        if ($row) {
-            $pdo->prepare("UPDATE product_prices SET price = ?, unit_size = ?, unit_price = ?, scraped_at = NOW() WHERE id = ?")
-                ->execute([$price, $unitSize, $unitPrice, (int)$row['id']]);
-        } else {
-            $pdo->prepare("INSERT INTO product_prices (product_id, store_id, price, unit_size, unit_price, scraped_at) VALUES (?, ?, ?, ?, ?, NOW())")
-                ->execute([$pid, $storeId, $price, $unitSize, $unitPrice]);
-        }
-
+        $catId = categorizeProduct($title, $catSlugs, 'DE');
+        $pid = upsertProduct($pdo, $title, $brand, $description, $catId, $image);
+        upsertPrice($pdo, $pid, $storeId, $price, $unitSize, $unitPrice);
         $imported++;
     }
 
