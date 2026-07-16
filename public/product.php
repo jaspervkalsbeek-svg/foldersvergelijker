@@ -204,7 +204,7 @@ $cheapestStore = $prices[0]['store_name'] ?? '';
 
 <footer class="footer">
     <div class="container">
-        <p>Folders Vergelijker – Vergelijk prijzen uit Nederlandse en Duitse supermarkten</p>
+        <p>Folders Vergelijker - <a href="privacy.php">Privacybeleid</a> - <a href="voorwaarden.php">Voorwaarden</a> - <a href="contact.php">Contact</a></p>
     </div>
 </footer>
 </body>

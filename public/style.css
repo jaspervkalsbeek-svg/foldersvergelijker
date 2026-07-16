@@ -133,6 +133,8 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,sa
 /* Footer */
 .footer{background:var(--surface);border-top:1px solid var(--border);padding:24px 0;margin-top:48px;text-align:center}
 .footer p{color:var(--text-muted);font-size:.82rem}
+.footer a{color:var(--text-dim);text-decoration:none;transition:color var(--transition)}
+.footer a:hover{color:var(--yellow)}
 
 /* Responsive */
 @media(max-width:768px){

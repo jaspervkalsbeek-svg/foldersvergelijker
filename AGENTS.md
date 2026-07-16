@@ -12,6 +12,17 @@ Bouw een prijsvergelijkingswebsite die producten uit Nederlandse en Duitse super
 - Verzenden via Gmail SMTP: jasper.v.kalsbeek@gmail.com met app-wachtwoord `epqk nagz zgze lbla`.
 - PDF generatie via FPDF v1.86 met cp1252 encoding (iconv) in `lib/fpdf.php`.
 
+## Vibe Coding Regels
+- **Geen color gradients** — gebruik effen kleuren, geen overgangen van kleur naar kleur.
+- **Geen em dashes (—)** — gebruik gewoon een koppelteken of punt.
+- **Altijd mobile-first** — elke pagina moet er goed uitzien op mobiel, niet alleen op desktop.
+- **Geen badges op de landing page** — vermijd "Nieuw", "Early Access", "BETA" etc.
+- **Footer met juridische pagina's** — in het Nederlands, passend bij de website (privacybeleid, voorwaarden, contact).
+
+## Security Regels
+- **Logout moet volledig zijn** — Bij uitloggen: sessie token verwijderen, cookies wissen, localStorage + sessionStorage legen, token server-side invalidaten. Gebruik `admin/logout.php` als standaard logout-pagina.
+- **IDOR preventie** — Verifieer dat de ingelogde gebruiker alleen toegang heeft tot zijn eigen data. Gebruik nooit object-ID's direct uit de URL zonder controle.
+
 ## Progress
 ### Done
 - **content-viewer-be.kaufda.de brochure API ontdekt** – Publieke Bonial API zonder auth. Retourneert ALLE offers per brochure (geen 16-offer limiet). Geeft 185-439 offers per DE store.
