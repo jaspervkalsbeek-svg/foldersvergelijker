@@ -1,39 +1,41 @@
 # Technisch Ontwerp - Folders Vergelijker
 
+Versie 1.1 - Juli 2026
+
 ## 1. Architectuur Overzicht
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                        BRONNEN (Externe)                        │
-├─────────────────┬─────────────────┬─────────────────────────────┤
-│  Puppeteer      │  kaufDA.de      │  AlleFolders GraphQL API    │
-│  (NL winkels)   │  (DE winkels)   │  (NL winkels)               │
-│  Node.js        │  PHP cURL       │  PHP cURL                   │
-└────────┬────────┴────────┬────────┴──────────────┬──────────────┘
-         │                 │                       │
-         ▼                 ▼                       ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                     SCRAPERS (Admin Panel)                      │
-│  scrape-run.php  │  kaufda-scrape.php  │  allefolders-scrape.php│
-│  AJAX JSON       │  AJAX JSON          │  AJAX JSON             │
-│  + scrape-store  │  + __NEXT_DATA__    │  + GraphQL             │
-│    .mjs (Node)   │  + Bonial API       │  + jafolders.com       │
-└────────┬────────┴────────┬────────────┴──────────────┬──────────┘
-         │                 │                           │
-         ▼                 ▼                           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    DATABASE (MariaDB 10.4)                      │
-│  folders_vergelijker                                            │
-│  stores │ folders │ categories │ products │ product_prices      │
-│  admins │ shopping_lists │ shopping_list_items                  │
-└────────┬────────────────────────────────────────┬───────────────┘
-         │                                        │
-         ▼                                        ▼
-┌─────────────────────────────────┐  ┌────────────────────────────┐
-│      ADMIN PANEL                │  │     PUBLIEKE SITE          │
-│  index, add_product, import,    │  │  index, product, stores,   │
-│  overview, scraper UI           │  │  shopping-list, contact    │
-└─────────────────────────────────┘  └────────────────────────────┘
++---------------------------------------------------------------------+
+|                        BRONNEN (Externe)                              |
++-----------------+-----------------+-----------------------------------+
+|  Puppeteer      |  kaufDA.de      |  AlleFolders GraphQL API          |
+|  (NL winkels)   |  (DE winkels)   |  (NL winkels)                     |
+|  Node.js        |  PHP cURL       |  PHP cURL                         |
++--------+--------+--------+--------+----------------+------------------+
+         |                 |                         |
+         v                 v                         v
++---------------------------------------------------------------------+
+|                     SCRAPERS (Admin Panel)                            |
+|  scrape-run.php  |  kaufda-scrape.php  |  allefolders-scrape.php     |
+|  AJAX JSON       |  AJAX JSON          |  AJAX JSON                  |
+|  + scrape-store  |  + __NEXT_DATA__    |  + GraphQL                  |
+|    .mjs (Node)   |  + Bonial API       |  + jafolders.com            |
++--------+--------+--------+----------------+------------------+
+         |                 |                         |
+         v                 v                         v
++---------------------------------------------------------------------+
+|                    DATABASE (MariaDB 10.4)                            |
+|  folders_vergelijker                                                  |
+|  stores | folders | categories | products | product_prices           |
+|  admins | shopping_lists | shopping_list_items                       |
++--------+----------------------------------------+-------------------+
+         |                                        |
+         v                                        v
++-----------------------------------+  +----------------------------+
+|      ADMIN PANEL                  |  |     PUBLIEKE SITE          |
+|  index, add_product, import,      |  |  index, product, stores,   |
+|  overview, scraper UI             |  |  shopping-list, contact    |
++-----------------------------------+  +----------------------------+
 ```
 
 ## 2. Tech Stack
@@ -54,15 +56,15 @@
 ### 3.1 Entiteit-Relatiediagram
 
 ```
-stores (1)──────< (N) product_prices
-stores (1)──────< (N) folders
-categories (1)──< (N) products
-products (1)────< (N) product_prices
-folders (1)─────< (N) product_prices
-shopping_lists (1)──< (N) shopping_list_items
+stores (1)------< (N) product_prices
+stores (1)------< (N) folders
+categories (1)---< (N) products
+products (1)-----< (N) product_prices
+folders (1)------< (N) product_prices
+shopping_lists (1)---< (N) shopping_list_items
 ```
 
-### 3.2 Tabellen
+### 3.2 Tabellen in `setup.sql`
 
 #### `stores`
 | Kolom | Type | constraints |
@@ -75,6 +77,8 @@ shopping_lists (1)──< (N) shopping_list_items
 | scraper_class | VARCHAR(100) | NULL |
 | active | BOOLEAN | DEFAULT TRUE |
 | created_at | TIMESTAMP | DEFAULT NOW |
+
+Seed data: 11 winkels (5 NL, 6 DE). Edeka en extra DE winkels in SQL maar niet geactiveerd in scraper UI.
 
 #### `folders`
 | Kolom | Type | constraints |
@@ -105,7 +109,6 @@ shopping_lists (1)──< (N) shopping_list_items
 | category_id | INT | FK -> categories(id) SET NULL |
 | ean | VARCHAR(13) | NULL |
 | image_url | VARCHAR(500) | NULL |
-| description | TEXT | NULL |
 | created_at | TIMESTAMP | DEFAULT NOW |
 
 #### `product_prices`
@@ -119,6 +122,8 @@ shopping_lists (1)──< (N) shopping_list_items
 | unit_size | VARCHAR(50) | NULL |
 | unit_price | DECIMAL(10,2) | NULL |
 | scraped_at | TIMESTAMP | DEFAULT NOW |
+
+### 3.3 Tabellen ontbrekend in `setup.sql` (handmatig aangemaakt)
 
 #### `admins`
 | Kolom | Type | constraints |
@@ -142,6 +147,17 @@ shopping_lists (1)──< (N) shopping_list_items
 | list_id | INT | FK -> shopping_lists(id) |
 | product_name | VARCHAR | NOT NULL |
 
+### 3.4 Kolom ontbrekend in `setup.sql`
+
+`products.description` (TEXT, NULL) - wordt gebruikt in `upsertProduct()` en kaufDA scraper maar niet gedefinieerd in CREATE TABLE.
+
+### 3.5 Database Statistieken
+
+- **5219** producten
+- **4129** prijzen
+- **5** actieve NL winkels (AH, Aldi, Plus, Lidl, Jumbo)
+- **5** actieve DE winkels (Rewe, Kaufland, Netto, Lidl, Aldi Sud)
+
 ## 4. Scraper Architectuur
 
 ### 4.1 Overzicht Scrapers per Bron
@@ -163,10 +179,15 @@ shopping_lists (1)──< (N) shopping_list_items
 - Gebruikt `puppeteer-extra` + `stealth-plugin` tegen detectie
 
 **Extractiepatronen:**
-- **AH:** Cookie accepteren, scrollen, `.bonus-card` elements
-- **Lidl NL:** `.product-grid-boxes` na lazy-load scroll
-- **Aldi NL:** `.product-tiles` na scroll
+- **AH:** Cookie accepteren, scrollen, `.promotion-card_root` elements
+- **Lidl NL:** `.product-grid-box` na lazy-load scroll
+- **Aldi NL:** `[class*="product-tile"]` na scroll
 - **Plus:** `.plp-item-wrapper` na scroll
+- **Dirk:** `article[data-product-id]` na scroll (niet actief)
+- **Rewe:** `article.cor-offer-renderer-tile` (niet actief - werkt ook via kaufDA)
+- **Penny:** `article.offer-tile` (niet actief)
+- **Aldi Sud:** Multi-page flow met food-theme URLs (niet actief - werkt via kaufDA)
+- **Lidl DE:** Schwarz API + gridboxes (niet actief - geen images)
 
 **Gemeenschappelijk:**
 - `window.__getProductImage()` helper (data-src/src/currentSrc fallback)
@@ -176,7 +197,7 @@ shopping_lists (1)──< (N) shopping_list_items
 
 ### 4.3 kaufDA.de Scraper (DE)
 
-**Bestand:** `admin/kaufda-scrape.php`
+**Bestand:** `admin/kaufda-scrape.php` (313 regels)
 
 **Twee-fasen aanpak:**
 
@@ -197,7 +218,7 @@ shopping_lists (1)──< (N) shopping_list_items
 
 ### 4.4 AlleFolders GraphQL API (NL)
 
-**Bestand:** `admin/allefolders-scrape.php`
+**Bestand:** `admin/allefolders-scrape.php` (138 regels)
 
 - Endpoint: `POST https://api.jafolders.com/graphql`
 - Header: `jafolders-context: allefolders;nl;web;1;1`
@@ -300,7 +321,7 @@ $pdo = new PDO(
 - Scrapers controleren `$_SESSION['admin_id']`
 - Retourneren 401 JSON bij ongeautoriseerde toegang
 
-### 10.4 Bekende Issues
+### 10.4 Bekende Security Issues
 - **Geen CSRF tokens** op formulieren
 - **Geen rate limiting** op publieke endpoints
 - **Geen input sanitization** op sommige plekken (SQL injection via PDO prepared statements is wel afgedekt)
@@ -309,55 +330,80 @@ $pdo = new PDO(
 
 ## 11. Bekende Bugs
 
-1. **Missing `include/db.php`** - `admin/login.php` en `admin/add_admin.php` refereren naar niet-bestaand bestand
-2. **3 tabellen ontbreken in `setup.sql`** - `admins`, `shopping_lists`, `shopping_list_items`
-3. **`products.description` kolom ontbreekt** in `setup.sql` maar wordt gebruikt in code
-4. **Geen migratiesysteem** - Schema wijzigingen ad-hoc via ALTER TABLE
+1. **Missing `include/db.php`** - `admin/login.php` en `admin/add_admin.php` refereren naar niet-bestaand bestand. Moet `config/database.php` zijn.
+2. **3 tabellen ontbreken in `setup.sql`** - `admins`, `shopping_lists`, `shopping_list_items` worden gebruikt in code maar niet gedefinieerd in het schema-bestand.
+3. **`products.description` kolom ontbreekt** in `setup.sql` maar wordt gebruikt in `upsertProduct()` en kaufDA scraper.
+4. **Geen migratiesysteem** - Schema wijzigingen ad-hoc via ALTER TABLE.
+5. **Store logo SVGs ontbreken** - `getStoreLogo()` in `functions.php` verwijst naar 9 SVG bestanden maar alleen `default.svg` bestaat.
+6. **`include/footer.html` is stale** - Referenties naar OW_heroes/OverDex project, nergens ingeladen.
+7. **`public/index.html` is leeg** - 0 regels, geen nuttige inhoud.
 
 ## 12. Bestandsstructuur
 
 ```
 foldersvergelijker/
-├── config/database.php           # DB connectie
-├── include/
-│   ├── auth.php                  # Auth guard
-│   ├── functions.php             # Core helpers
-│   └── footer.html               # STALE (niet gebruikt)
-├── lib/
-│   ├── fpdf.php                  # PDF generatie
-│   ├── PHPMailer.php             # E-mail
-│   ├── SMTP.php                  # SMTP transport
-│   ├── Exception.php             # PHPMailer exceptions
-│   └── font/                     # FPDF core fonts (cp1252)
-├── admin/
-│   ├── index.php                 # Dashboard + scraper UI
-│   ├── login.php                 # Admin login
-│   ├── logout.php                # Secure logout
-│   ├── add_admin.php             # Admin aanmaken
-│   ├── add_product.php           # Handmatig product toevoegen
-│   ├── import.php                # CSV/JSON bulk import
-│   ├── overview.php              # Paginated product overzicht
-│   ├── scrape-run.php            # AJAX: Puppeteer scrapers
-│   ├── kaufda-scrape.php         # AJAX: kaufDA.de scraper
-│   ├── allefolders-scrape.php    # AJAX: AlleFolders API
-│   └── adminstyle.css            # Admin dark theme
-├── public/
-│   ├── index.php                 # Product listing (search, filters)
-│   ├── product.php               # Product detail + prijsvergelijking
-│   ├── stores.php                # Winkel overzicht
-│   ├── shopping-list.php         # Boodschappenlijst UI
-│   ├── shopping-list-search.php  # AJAX: autocomplete
-│   ├── shopping-list-send.php    # AJAX: PDF + e-mail
-│   ├── contact.php               # Contact formulier
-│   ├── privacy.php               # Privacybeleid
-│   ├── voorwaarden.php           # Algemene voorwaarden
-│   └── style.css                 # Publieke dark theme
-├── scrapers/node/
-│   ├── scrape-store.mjs          # Puppeteer scraper (9 extractors)
-│   └── package.json              # Node.js dependencies
-├── assets/logos/                 # Winkel logo's
-├── setup.sql                     # Database schema + seed data
-└── AGENTS.md                     # Project context
+|-- AGENTS.md                         # Project context voor AI agents
+|-- setup.sql                         # DB schema + seed data (11 stores, 15 categorieen)
+|
+|-- config/
+|   +-- database.php                  # PDO connectie (localhost, root, geen ww)
+|
+|-- include/
+|   |-- auth.php                      # Session guard -> login redirect
+|   |-- functions.php                 # Core helpers (13 functies, 211 regels)
+|   +-- footer.html                   # STALE (niet gebruikt)
+|
+|-- lib/                              # Third-party PHP bibliotheken
+|   |-- fpdf.php                      # FPDF v1.86
+|   |-- PHPMailer.php                 # PHPMailer v6.9.3
+|   |-- SMTP.php                      # SMTP transport
+|   |-- Exception.php                 # PHPMailer exceptions
+|   |-- OAuth.php                     # Ongebruikt (bundled)
+|   |-- OAuthTokenProvider.php        # Ongebruikt (bundled)
+|   |-- POP3.php                      # Ongebruikt (bundled)
+|   |-- DSNConfigurator.php           # Ongebruikt (bundled)
+|   +-- font/                         # FPDF core fonts (cp1252)
+|
+|-- assets/
+|   +-- logos/
+|       +-- default.svg               # Enige logo bestand
+|
+|-- admin/                            # Admin paneel (11 bestanden)
+|   |-- index.php                     # Dashboard + scraper UI (373 regels)
+|   |-- login.php                     # Session-based login
+|   |-- logout.php                    # Volledige logout (session + cookies + JS)
+|   |-- add_admin.php                 # Nieuw admin account
+|   |-- add_product.php               # Handmatig product + multi-store prijzen
+|   |-- import.php                    # CSV/JSON bulk import (481 regels)
+|   |-- overview.php                  # Paginated product tabel
+|   |-- scrape-run.php                # AJAX: Puppeteer scrapers
+|   |-- kaufda-scrape.php             # AJAX: kaufDA.de scraper (313 regels)
+|   |-- allefolders-scrape.php        # AJAX: AlleFolders API (138 regels)
+|   +-- adminstyle.css                # Admin dark theme (674 regels)
+|
+|-- public/                           # Publieke website (11 bestanden)
+|   |-- index.php                     # Homepage: search, filters, grid/list (255 regels)
+|   |-- product.php                   # Product detail: prijsvergelijking (211 regels)
+|   |-- stores.php                    # Winkel overzicht
+|   |-- shopping-list.php             # Boodschappenlijst UI (235 regels)
+|   |-- shopping-list-search.php      # AJAX: autocomplete (15 regels)
+|   |-- shopping-list-send.php        # AJAX: PDF + e-mail (409 regels)
+|   |-- contact.php                   # Contact formulier -> Gmail SMTP
+|   |-- privacy.php                   # Privacybeleid (Nederlands)
+|   |-- voorwaarden.php               # Algemene voorwaarden (Nederlands)
+|   |-- style.css                     # Publieke dark theme (148 regels)
+|   +-- index.html                    # Leeg bestand
+|
+|-- scrapers/
+|   +-- node/
+|       |-- scrape-store.mjs          # Puppeteer scraper (9 extractors, 1030 regels)
+|       |-- package.json              # puppeteer + stealth-plugin
+|       |-- package-lock.json
+|       +-- node_modules/             # npm dependencies
+|
++-- docs/
+    |-- functioneel-ontwerp.md        # Dit bestand
+    +-- technisch-ontwerp.md          # Dit bestand
 ```
 
 ## 13. Datastromen
@@ -379,3 +425,11 @@ Autocomplete (AJAX) -> Product selectie -> E-mail input -> POST -> PDF generatie
 
 ### 13.4 Cleanup Strategie
 Bij elke scraping-sessie worden oude prijzen voor die winkel verwijderd (niet bijgewerkt in deze batch). Dit zorgt voor automatische archivering van verlopen aanbiedingen.
+
+## 14. Git & Versiebeheer
+
+- **Remote:** `https://github.com/jaspervkalsbeek-svg/foldersvergelijker.git`
+- **Default branch:** `main` (enige branch)
+- **Geen develop branch** aanwezig
+- **Releases:** v1.0 "Folders Vergelijker NL" (22 jun 2026)
+- **Geen milestones of issues** geconfigureerd (token beperkingen)

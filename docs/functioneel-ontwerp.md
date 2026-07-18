@@ -1,5 +1,7 @@
 # Functioneel Ontwerp - Folders Vergelijker
 
+Versie 1.1 - Juli 2026
+
 ## 1. Projectomschrijving
 
 **Folders Vergelijker** is een publieke website die producten uit Nederlandse en Duitse supermarktfolders verzamelt, vergelijkt en toont waar elk product het goedkoopst is, inclusief prijs per eenheid.
@@ -16,7 +18,7 @@
 - Automatische verzameling van productprijzen uit supermarktfolders
 - Cross-border vergelijking (NL en DE supermarkten)
 - Prijs per eenheid (per 100g/kg/L) naast totaalprijs
-- Automatische categorisering van producten
+- Automatische categorisering van producten (15 categorieen)
 
 ### 3.2 Scraping & Data Import
 - **Automatisch:** 3 scraper-systemen (Puppeteer, kaufDA.de, AlleFolders API)
@@ -35,131 +37,146 @@
 
 ```
 Landing page (index.php)
-    │
-    ├── Zoekbalk: voer productnaam in
-    │   └── Live resultaten tonen
-    │
-    ├── Filters:
-    │   ├── Land: NL / DE / Alle
-    │   ├── Winkel: dropdown
-    │   └── Categorie: dropdown
-    │
-    ├── Weergave: Grid / List toggle
-    │
-    └── Product selecteren
-        └── Product detail pagina (product.php?id=N)
-            ├── Product info (naam, merk, afbeelding, categorie, EAN)
-            ├── Laagste prijs box (met winkelnaam + kleur)
-            ├── Laagste prijs per eenheid
-            ├── Prijsvergelijkingstabel:
-            │   ├── Winkel (gekleurde badge)
-            │   ├── Land (NL/DE)
-            │   ├── Prijs
-            │   ├── Verpakking
-            │   ├── Prijs/kg
-            │   ├── Prijs/100g
-            │   └── Datum gezien
-            └── Vergelijkbare producten (4 willekeurige uit dezelfde categorie)
+    |
+    +-- Zoekbalk: voer productnaam in
+    |   +-- Live resultaten tonen
+    |
+    +-- Filters:
+    |   +-- Land: NL / DE / Alle
+    |   +-- Winkel: dropdown
+    |   +-- Categorie: dropdown
+    |
+    +-- Weergave: Grid / List toggle
+    |
+    +-- Product selecteren
+        +-- Product detail pagina (product.php?id=N)
+            +-- Product info (naam, merk, afbeelding, categorie, EAN)
+            +-- Laagste prijs box (met winkelnaam + kleur)
+            +-- Laagste prijs per eenheid
+            +-- Prijsvergelijkingstabel:
+            |   +-- Winkel (gekleurde badge)
+            |   +-- Land (NL/DE)
+            |   +-- Prijs
+            |   +-- Verpakking
+            |   +-- Prijs/kg
+            |   +-- Prijs/100g
+            |   +-- Datum gezien
+            +-- Vergelijkbare producten (4 willekeurige uit dezelfde categorie)
 ```
 
 ### 4.2 Publieke Gebruiker - Boodschappenlijst
 
 ```
 Shopping List pagina (shopping-list.php)
-    │
-    ├── Product toevoegen:
-    │   ├── Typ productnaam (min. 2 tekens)
-    │   ├── Live autocomplete (max. 15 resultaten)
-    │   └── Klik om toe te voegen
-    │
-    ├── Lijst beheren:
-    │   ├── Producten tonen als tags
-    │   └── Verwijderen via X knop
-    │
-    ├── E-mail adres invoeren
-    │
-    └── "Verstuur overzicht" knop
-        └── AJAX POST naar shopping-list-send.php
-            ├── PDF generatie (FPDF):
-            │   ├── Donkere achtergrond
-            │   ├── "Folders Vergelijker" branding
-            │   ├── Per product: winkelbadge, naam, merk, prijs, eenheidsprijs
-            │   ├── "Ook:" alternatieve winkelprijzen
-            │   └── Checkbox voor afdrukken
-            ├── E-mail verzenden (PHPMailer):
-            │   ├── HTML body (donker theme)
-            │   ├── Productoverzicht met winkelprijzen
-            │   └── PDF bijlage ("boodschappenlijstje.pdf")
-            └── Succes/foutmelding tonen
+    |
+    +-- Product toevoegen:
+    |   +-- Typ productnaam (min. 2 tekens)
+    |   +-- Live autocomplete (max. 15 resultaten)
+    |   +-- Klik om toe te voegen
+    |
+    +-- Lijst beheren:
+    |   +-- Producten tonen als tags
+    |   +-- Verwijderen via X knop
+    |
+    +-- E-mail adres invoeren
+    |
+    +-- "Verstuur overzicht" knop
+        +-- AJAX POST naar shopping-list-send.php
+            +-- PDF generatie (FPDF):
+            |   +-- Donkere achtergrond
+            |   +-- "Folders Vergelijker" branding
+            |   +-- Per product: winkelbadge, naam, merk, prijs, eenheidsprijs
+            |   +-- "Ook:" alternatieve winkelprijzen
+            |   +-- Checkbox voor afdrukken
+            +-- E-mail verzenden (PHPMailer):
+            |   +-- HTML body (donker theme)
+            |   +-- Productoverzicht met winkelprijzen
+            |   +-- PDF bijlage ("boodschappenlijstje.pdf")
+            +-- Succes/foutmelding tonen
 ```
 
 ### 4.3 Publieke Gebruiker - Winkels Bekijken
 
 ```
 Stores pagina (stores.php)
-    │
-    ├── Land filter: Alle / NL / DE
-    │
-    └── Winkel cards:
-        ├── Gekleurde header (winkelkleur)
-        ├── Land (NL/DE)
-        ├── Statistieken (aantal producten, aantal prijzen)
-        ├── Website domein
-        └── Link naar gefilterde productlisting
+    |
+    +-- Land filter: Alle / NL / DE
+    |
+    +-- Winkel cards:
+        +-- Gekleurde header (winkelkleur)
+        +-- Land (NL/DE)
+        +-- Statistieken (aantal producten, aantal prijzen)
+        +-- Website domein
+        +-- Link naar gefilterde productlisting
 ```
 
-### 4.4 Admin - Login & Dashboard
+### 4.4 Publieke Gebruiker - Contact & Juridisch
+
+```
+Contact (contact.php):
+    +-- Naam, e-mail, bericht
+    +-- Verzenden via PHPMailer (Gmail SMTP)
+    +-- Bevestiging/foutmelding
+
+Privacy (privacy.php):
+    +-- Nederlands privacybeleid
+
+Voorwaarden (voorwaarden.php):
+    +-- Algemene voorwaarden
+```
+
+### 4.5 Admin - Login & Dashboard
 
 ```
 Login pagina (login.php)
-    │
-    ├── Username + wachtwoord
-    └── Na succesvolle login → Dashboard (index.php)
-        │
-        ├── Statistieken:
-        │   ├── Totaal producten
-        │   ├── Totaal prijzen
-        │   └── Actieve winkels met prijzen
-        │
-        ├── Laagste prijzen (5 goedkoopste)
-        │
-        ├── Snelstart kaarten:
-        │   ├── Product toevoegen
-        │   ├── Importeren
-        │   └── Overzicht
-        │
-        └── Scraper Control Panel:
-            ├── 3 secties: Puppeteer, kaufDA, AlleFolders
-            ├── Per winkel: "Scrapen" knop
-            ├── "Alle scannen" knop
-            └── Terminal-achtig log venster
+    |
+    +-- Username + wachtwoord
+    +-- Na succesvolle login -> Dashboard (index.php)
+        |
+        +-- Statistieken:
+        |   +-- Totaal producten
+        |   +-- Totaal prijzen
+        |   +-- Actieve winkels met prijzen
+        |
+        +-- Laagste prijzen (5 goedkoopste)
+        |
+        +-- Snelstart kaarten:
+        |   +-- Product toevoegen
+        |   +-- Importeren
+        |   +-- Overzicht
+        |
+        +-- Scraper Control Panel:
+            +-- 3 secties: Puppeteer, kaufDA, AlleFolders
+            +-- Per winkel: "Scrapen" knop + status badge (Puppeteer/kaufDA/API)
+            +-- "Alle scannen" knop
+            +-- Terminal-achtig log venster
 ```
 
-### 4.5 Admin - Product Beheer
+### 4.6 Admin - Product Beheer
 
 ```
 Handmatig toevoegen (add_product.php):
-    ├── Product naam, merk, categorie (dropdown), EAN
-    ├── Dynamische prijsregels:
-    │   ├── Winkel dropdown
-    │   ├── Prijs invoer
-    │   └── +/- knop om regels toe te voegen/verwijderen
-    └── Opslaan → upsert in DB
+    +-- Product naam, merk, categorie (dropdown), EAN
+    +-- Dynamische prijsregels:
+    |   +-- Winkel dropdown
+    |   +-- Prijs invoer
+    |   +-- +/- knop om regels toe te voegen/verwijderen
+    +-- Opslaan -> upsert in DB
 
 Bulk import (import.php):
-    ├── Tabbladen: Upload / Preview / Resultaat
-    ├── Drag-and-drop upload
-    ├── Ondersteunt CSV en JSON:
-    │   ├── CSV: name,brand,category,ean,store,price
-    │   └── JSON: array met nested prices[]
-    ├── Preview: samenvatting + eerste 10 producten
-    └── Resultaat: log met OK/WARN/ERR entries
+    +-- Tabbladen: Upload / Preview / Resultaat
+    +-- Drag-and-drop upload
+    +-- Ondersteunt CSV en JSON:
+    |   +-- CSV: name,brand,category,ean,store,price
+    |   +-- JSON: array met nested prices[]
+    +-- Preview: samenvatting + eerste 10 producten
+    +-- Resultaat: log met OK/WARN/ERR entries
 
 Overzicht (overview.php):
-    ├── Paginated tabel (30/pagina)
-    ├── Zoeken op naam of merk
-    ├── Kolommen: naam, merk, categorie, aantal winkels, laagste prijs, aanmaakdatum
-    └── Link naar publieke detail pagina
+    +-- Paginated tabel (30/pagina)
+    +-- Zoeken op naam of merk
+    +-- Kolommen: naam, merk, categorie, aantal winkels, laagste prijs, aanmaakdatum
+    +-- Link naar publieke detail pagina
 ```
 
 ## 5. Actieve Winkels
@@ -181,6 +198,15 @@ Overzicht (overview.php):
 | Netto | kaufDA.de | Bonial API |
 | Lidl DE | kaufDA.de | Bonial API |
 | Aldi Sud | kaufDA.de | Search page + API |
+
+### 5.3 Inactieve winkels (in setup.sql maar niet geactiveerd)
+| Winkel | Land | Reden |
+|--------|------|-------|
+| Dirk | NL | Puppeteer scraper aanwezig, niet actief in UI |
+| Edeka | DE | kaufDA slug bekend, niet geactiveerd |
+| Penny | DE | Puppeteer scraper in code, niet in kaufDA actief |
+| Rossmann | DE | kaufDA slug bekend, niet geactiveerd |
+| DM | DE | Brochure UUID gevonden maar 0 offers |
 
 ## 6. Pagina's Overzicht
 
@@ -252,9 +278,9 @@ Overzicht (overview.php):
 - **Laagste prijzen:** 5 goedkoopste producten
 - **Snelstart:** Cards naar andere admin pagina's
 - **Scraper Control Panel:**
-  - 3 secties met store cards
-  - Per winkel "Scrapen" knop
-  - "Alle scannen" doorloopt alle groepen
+  - 3 secties met store cards + badges (Puppeteer/kaufDA/API)
+  - Per winkel "Scrapen" knop (AJAX)
+  - "Alle scannen" doorloopt alle groepen sequentieel
   - Terminal-achtig log met voortgang
 
 ## 8. Design Principes
@@ -263,8 +289,9 @@ Overzicht (overview.php):
 - **Donker thema:** `#0d0d0d` achtergrond, `#ffd600` geel accent
 - **Mobile-first:** Responsive design, single-column op <768px
 - **Geen gradients:** Alleen effen kleuren
+- **Geen em dashes:** Gebruik koppeltekens of punten
 - **Winkelkleuren:** Elke winkel heeft eigen brand kleur
-- **Inter font family**
+- **Inter font family** (publiek), **Bebas Neue + DM Sans** (admin)
 
 ### 8.2 Gebruiksvriendelijkheid
 - **Eenvoudig zoeken:** Direct op de homepage
@@ -272,6 +299,9 @@ Overzicht (overview.php):
 - **Grid/List toggle:** Gebruiker kiest weergave
 - **Paginering:** Niet overweldigend grote lijsten
 - **Autocomplete:** Snelle product toevoeging aan lijst
+
+### 8.3 Footer
+- Nederlands juridische pagina's: Privacybeleid, Voorwaarden, Contact
 
 ## 9. External Bronnen
 
@@ -304,7 +334,14 @@ Overzicht (overview.php):
 7. **Geen user accounts:** Alleen admin accounts
 8. **Geen wishlist/alerts:** Niet gewenst in huidige scope
 
-## 11. Toekomstige Uitbreidingen (Nice-to-have)
+## 11. Bekende Bugs (uit technisch ontwerp)
+
+1. `admin/login.php` en `admin/add_admin.php` refereren naar niet-bestaand `include/db.php` (moet `config/database.php` zijn)
+2. `setup.sql` mist 3 tabellen: `admins`, `shopping_lists`, `shopping_list_items`
+3. `setup.sql` mist `products.description` kolom
+4. Store logo SVGs worden aangeroepen maar bestaan niet in `assets/logos/`
+
+## 12. Toekomstige Uitbreidingen (Nice-to-have)
 
 1. **Extra NL supermarkten:** Nettorama, Jan Linders, Spar (via AlleFolders API)
 2. **Product matching:** Fuzzy matching op naam + gewicht + merk
