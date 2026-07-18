@@ -1,6 +1,7 @@
 <?php
 header('Content-Type: application/json');
 require_once __DIR__ . '/../config/database.php';
+$smtp = require __DIR__ . '/../config/smtp.php';
 require_once __DIR__ . '/../include/functions.php';
 require_once __DIR__ . '/../lib/PHPMailer.php';
 require_once __DIR__ . '/../lib/SMTP.php';
@@ -380,14 +381,14 @@ h1{color:#ffd600;font-size:20px;margin-bottom:8px}
 try {
     $mail = new PHPMailer(true);
     $mail->isSMTP();
-    $mail->Host       = 'smtp.gmail.com';
+    $mail->Host       = $smtp['host'];
     $mail->SMTPAuth   = true;
-    $mail->Username   = 'jasper.v.kalsbeek@gmail.com';
-    $mail->Password   = 'epqk nagz zgze lbla';
+    $mail->Username   = $smtp['username'];
+    $mail->Password   = $smtp['password'];
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-    $mail->Port       = 587;
+    $mail->Port       = $smtp['port'];
     $mail->CharSet    = 'UTF-8';
-    $mail->setFrom('jasper.v.kalsbeek@gmail.com', 'Folders Vergelijker');
+    $mail->setFrom($smtp['from_email'], $smtp['from_name']);
     $mail->addAddress($email);
     $mail->isHTML(true);
     $mail->Subject = 'Jouw boodschappenlijstje - ' . $foundCount . '/' . $totalCount . ' gevonden in folders';

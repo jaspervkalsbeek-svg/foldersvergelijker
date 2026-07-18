@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
+$smtp = require __DIR__ . '/../config/smtp.php';
 require_once __DIR__ . '/../include/functions.php';
 require_once __DIR__ . '/../lib/PHPMailer.php';
 require_once __DIR__ . '/../lib/SMTP.php';
@@ -16,16 +17,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $mail = new PHPMailer(true);
             $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com';
+            $mail->Host = $smtp['host'];
             $mail->SMTPAuth = true;
-            $mail->Username = 'jasper.v.kalsbeek@gmail.com';
-            $mail->Password = 'epqk nagz zgze lbla';
+            $mail->Username = $smtp['username'];
+            $mail->Password = $smtp['password'];
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
+            $mail->Port = $smtp['port'];
             $mail->CharSet = 'UTF-8';
-            $mail->setFrom('jasper.v.kalsbeek@gmail.com', 'Contactformulier');
+            $mail->setFrom($smtp['from_email'], 'Contactformulier');
             $mail->addReplyTo($email, $name);
-            $mail->addAddress('jasper.v.kalsbeek@gmail.com');
+            $mail->addAddress($smtp['from_email']);
             $mail->isHTML(false);
             $mail->Subject = 'Contactformulier - Folders Vergelijker';
             $mail->Body = "Naam: $name\nE-mail: $email\n\nBericht:\n$message";

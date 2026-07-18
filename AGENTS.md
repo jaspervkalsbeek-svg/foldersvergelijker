@@ -9,7 +9,7 @@ Bouw een prijsvergelijkingswebsite die producten uit Nederlandse en Duitse super
 - Prijs per eenheid (per 100g/kg/L) naast totaalprijs.
 - Node.js v24.13.0, `puppeteer-extra` + `stealth-plugin` in `scrapers/node/`.
 - XAMPP PHP op localhost, projectroot `C:\xampp\htdocs\foldersvergelijker`.
-- Verzenden via Gmail SMTP: jasper.v.kalsbeek@gmail.com met app-wachtwoord `epqk nagz zgze lbla`.
+- Verzenden via Gmail SMTP: jasper.v.kalsbeek@gmail.com met app-wachtwoord in `config/smtp.php`.
 - PDF generatie via FPDF v1.86 met cp1252 encoding (iconv) in `lib/fpdf.php`.
 
 ## Vibe Coding Regels
@@ -61,7 +61,7 @@ Bouw een prijsvergelijkingswebsite die producten uit Nederlandse en Duitse super
 - **Database:** `folders_vergelijker` op localhost (MariaDB 10.4.32), user root, geen wachtwoord. **DB stats:** 5219 producten, 4129 prijzen, 5 actieve NL winkels (AH, Aldi, Plus, Lidl, Jumbo), 5 actieve DE winkels (Rewe, Kaufland, Netto, Lidl, Aldi Süd). `admins`-tabel met user `jasper`.
 - **Node.js:** v24.13.0, `puppeteer-extra` + `stealth-plugin` in `scrapers/node/`.
 - **XAMPP:** PHP op localhost, projectroot `C:\xampp\htdocs\foldersvergelijker`.
-- **Gmail SMTP:** `jasper.v.kalsbeek@gmail.com` / app-wachtwoord `epqk nagz zgze lbla`.
+- **Gmail SMTP:** `jasper.v.kalsbeek@gmail.com` / app-wachtwoord in `config/smtp.php`.
 - **PHPMailer v6.9.3** – `lib/PHPMailer.php`, `lib/SMTP.php`, `lib/Exception.php`.
 - **FPDF v1.86** – `lib/fpdf.php`, `lib/font/` (cp1252 core fonts).
 - **`auth.php`** – staat in `include/auth.php`, redirect naar `/foldersvergelijker/admin/login.php`. Inclusie in `index.php`, `add_admin.php`, `add_product.php`, `overview.php`, `import.php`. AJAX endpoints (`scrape-run.php`, `kaufda-scrape.php`, `allefolders-scrape.php`) hebben eigen session check (401 JSON).
