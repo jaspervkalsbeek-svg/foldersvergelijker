@@ -10,7 +10,7 @@
 <body>
 <?php
 require_once '../include/auth.php';
-require_once '../include/db.php';
+require_once '../config/database.php';
 
 $success = '';
 $error   = '';

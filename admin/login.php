@@ -1,6 +1,6 @@
 <?php
 // admin/login.php
-require_once '../include/db.php';
+require_once '../config/database.php';
 session_start();
 
 // If already logged in, go straight to dashboard

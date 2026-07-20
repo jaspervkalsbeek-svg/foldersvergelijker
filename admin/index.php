@@ -10,7 +10,7 @@
 <body>
 <?php
 session_start();
-include_once '../include/db.php';
+require_once '../config/database.php';
 require_once '../include/auth.php';
 
 // ── Stats ──
