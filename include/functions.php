@@ -10,35 +10,6 @@ function truncateText(string $text, int $length = 60): string
     return mb_substr($text, 0, $length) . '...';
 }
 
-function getProductLink(int $id): string
-{
-    return 'product.php?id=' . $id;
-}
-
-function getStoreLogo(string $name): string
-{
-    $logos = [
-        'Albert Heijn' => 'ah.svg',
-        'Jumbo'        => 'jumbo.svg',
-        'Lidl'         => 'lidl.svg',
-        'Aldi'         => 'aldi.svg',
-        'Plus'         => 'plus.svg',
-        'Dirk'         => 'dirk.svg',
-        'Rewe'         => 'rewe.svg',
-        'Edeka'        => 'edeka.svg',
-        'Netto'        => 'netto.svg',
-    ];
-
-    $nameLower = mb_strtolower($name);
-    foreach ($logos as $storeName => $filename) {
-        if (str_contains($nameLower, mb_strtolower($storeName))) {
-            return 'assets/logos/' . $filename;
-        }
-    }
-
-    return 'assets/logos/default.svg';
-}
-
 function getStoreColor(string $name): string
 {
     $colors = [

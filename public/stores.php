@@ -54,8 +54,8 @@ $stores = $stmt->fetchAll();
 
         <div class="country-filter">
             <a href="stores.php" class="filter-btn <?= !$country ? 'active' : '' ?>">Alle</a>
-            <a href="stores.php?country=NL" class="filter-btn <?= $country === 'NL' ? 'active' : '' ?>">🇳🇱 Nederland</a>
-            <a href="stores.php?country=DE" class="filter-btn <?= $country === 'DE' ? 'active' : '' ?>">🇩🇪 Duitsland</a>
+            <a href="stores.php?country=NL" class="filter-btn <?= $country === 'NL' ? 'active' : '' ?>">Nederland</a>
+            <a href="stores.php?country=DE" class="filter-btn <?= $country === 'DE' ? 'active' : '' ?>">Duitsland</a>
         </div>
     </section>
 
@@ -66,7 +66,7 @@ $stores = $stmt->fetchAll();
                     <?= htmlspecialchars($store['name']) ?>
                 </div>
                 <div class="store-card-body">
-                    <span class="store-country"><?= $store['country'] === 'NL' ? '🇳🇱 Nederland' : '🇩🇪 Duitsland' ?></span>
+                    <span class="store-country"><?= $store['country'] === 'NL' ? 'Nederland' : 'Duitsland' ?></span>
                     <div class="store-stats">
                         <div class="stat">
                             <span class="stat-value"><?= (int)$store['product_count'] ?></span>

@@ -23,17 +23,7 @@ function fetchJson(url) {
 const storeName = (process.argv[2] ?? "").toLowerCase();
 const timeout = 30000;
 
-// Blocked stores (kept for reference):
-//   jumbo    – Akamai edgesuite blocks even with stealth
-//   edeka    – timeout, no product grid found
-//   netto    – DOM structure without reliable card wrappers
-//   aldi-nord – complex nested product tiles (todo)
 const STORES = {
-  "penny": {
-    url: "https://www.penny.de/angebote",
-    extract: extractPenny,
-    scroll: true,
-  },
   "ah": {
     url: "https://www.ah.nl/bonus",
     extract: extractAH,
@@ -54,16 +44,6 @@ const STORES = {
   "plus": {
     url: "https://www.plus.nl/aanbiedingen",
     extract: extractPlus,
-    scroll: true,
-  },
-  "dirk": {
-    url: "https://www.dirk.nl/aanbiedingen",
-    extract: extractDirk,
-    scroll: true,
-  },
-  "rewe": {
-    url: "https://www.rewe.de/angebote/",
-    extract: extractRewe,
     scroll: true,
   },
   "aldi-sued": {
@@ -584,69 +564,6 @@ function extractAldiNL() {
       unit_size: unitSize,
       unit_price: unitPrice,
       image,
-      url: null,
-    });
-  }
-
-  return products;
-}
-
-// ── Netto extractor ──
-function extractNetto() {
-  // Netto uses H4 for product names and H3 for prices in proximity
-  const products = [];
-  const seen = new Set();
-  const h4s = document.querySelectorAll("h4");
-
-  for (const h4 of h4s) {
-    const name = h4.textContent.replace(/\s+/g, " ").trim();
-    if (!name || name.length < 2) continue;
-    if (seen.has(name.toLowerCase())) continue;
-    seen.add(name.toLowerCase());
-
-    // Find the nearest following H3 (price)
-    let sibling = h4.parentElement?.nextElementSibling || h4.nextElementSibling;
-    let price = 0;
-    let promoLabel = "";
-
-    // Walk siblings to find H3 with price
-    let check = h4.closest('[class*="flex"]')?.nextElementSibling || h4.parentElement?.nextElementSibling;
-    while (check) {
-      const h3 = check.querySelector("h3");
-      if (h3) {
-        const t = h3.textContent.trim();
-        const m = t.match(/([0-9]+)[,.]?([0-9]{2})?$/);
-        if (m) {
-          price = parseFloat(m[1] + "." + (m[2] || "00"));
-
-          // Check siblings for discount label
-          const prev = h3.previousElementSibling;
-          if (prev) promoLabel = prev.textContent.trim().slice(0, 60);
-          break;
-        }
-      }
-      check = check.nextElementSibling;
-    }
-
-    // Extract text from parent for description/unit info
-    const parent = h4.closest("[class]");
-    const text = parent?.textContent?.replace(/\s+/g, " ").trim() || "";
-
-    // Find unit price in surrounding text
-    let unitPrice = null;
-    const unitMatch = text.match(/1\s*(kg|l)\s*=\s*([0-9]+)[,.]?([0-9]{2})/i);
-    if (unitMatch) {
-      unitPrice = parseFloat(unitMatch[2] + "." + (unitMatch[3] || "00"));
-    }
-
-    products.push({
-      name,
-      price,
-      description: text.slice(0, 200),
-      promo_label: promoLabel,
-      unit_size: null,
-      unit_price: unitPrice,
-      image: null,
       url: null,
     });
   }

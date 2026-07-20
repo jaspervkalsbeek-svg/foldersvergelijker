@@ -68,7 +68,7 @@ $savingsPercent = $highestPrice > 0 ? round(($savings / $highestPrice) * 100) : 
     <title><?= htmlspecialchars($product['name']) ?> – Folders Vergelijker</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=<?= time() ?>">
+    <link rel="stylesheet" href="style.css?v=20260720">
 </head>
 <body>
 <header class="header">

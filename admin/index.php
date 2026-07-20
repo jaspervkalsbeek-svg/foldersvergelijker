@@ -9,7 +9,6 @@
 </head>
 <body>
 <?php
-session_start();
 require_once '../config/database.php';
 require_once '../include/auth.php';
 
@@ -181,7 +180,7 @@ $cheapestItems = $pdo->query("
         ?>
         <div class="store-card" data-store="<?= $storeKey ?>" data-source="<?= $source ?>">
             <div class="store-card-body">
-                <div class="store-card-icon"><?= $s['country'] === 'NL' ? '🇳🇱' : '🇩🇪' ?></div>
+                <div class="store-card-icon"><?= $s['country'] === 'NL' ? 'NL' : 'DE' ?></div>
                 <div class="store-card-info">
                     <div class="store-card-name"><?= htmlspecialchars($s['name']) ?> <?= $badge ?></div>
                     <div class="store-card-count"><?= (int)$s['price_count'] ?> prijzen</div>

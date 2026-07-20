@@ -9,9 +9,9 @@
 </head>
 <body>
 <?php
-session_start();
 require_once __DIR__ . '/../include/auth.php';
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../include/functions.php';
 
 $search = trim($_GET['search'] ?? '');
 $page   = max(1, (int)($_GET['page'] ?? 1));
@@ -92,7 +92,7 @@ $products = $stmt->fetchAll();
                     <tr>
                         <td style="padding:10px 12px;border-bottom:1px solid var(--border-subtle)">
                             <a href="../public/product.php?id=<?= (int)$p['id'] ?>" style="color:var(--text);text-decoration:none;font-weight:500">
-                                <?= htmlspecialchars(truncate_text($p['name'], 50)) ?>
+                                <?= htmlspecialchars(truncateText($p['name'], 50)) ?>
                             </a>
                         </td>
                         <td style="padding:10px 12px;border-bottom:1px solid var(--border-subtle);color:var(--text-dim)"><?= htmlspecialchars($p['brand'] ?? '-') ?></td>
@@ -132,9 +132,3 @@ $products = $stmt->fetchAll();
 </main>
 </body>
 </html>
-<?php
-function truncate_text($text, $len = 50) {
-    if (mb_strlen($text) <= $len) return $text;
-    return mb_substr($text, 0, $len) . '...';
-}
-?>
