@@ -48,8 +48,17 @@ $stmt = $pdo->prepare("
 $stmt->execute([$product['category_id'], $productId]);
 $similar = $stmt->fetchAll();
 
+// Berekene hoogste prijs voor contrast
+$highestPrice = 0;
+foreach ($prices as $p) {
+    if ((float)$p['price'] > $highestPrice) {
+        $highestPrice = (float)$p['price'];
+    }
+}
 $cheapestPrice = $prices[0]['price'] ?? 0;
 $cheapestStore = $prices[0]['store_name'] ?? '';
+$savings = $highestPrice > $cheapestPrice ? $highestPrice - $cheapestPrice : 0;
+$savingsPercent = $highestPrice > 0 ? round(($savings / $highestPrice) * 100) : 0;
 ?>
 <!DOCTYPE html>
 <html lang="nl">
@@ -59,7 +68,7 @@ $cheapestStore = $prices[0]['store_name'] ?? '';
     <title><?= htmlspecialchars($product['name']) ?> – Folders Vergelijker</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=<?= time() ?>">
 </head>
 <body>
 <header class="header">
@@ -100,10 +109,20 @@ $cheapestStore = $prices[0]['store_name'] ?? '';
 
             <div class="detail-cheapest">
                 <span class="cheapest-label">Laagste prijs</span>
-                <span class="cheapest-price"><?= formatPrice((float)$cheapestPrice) ?></span>
+                <span class="cheapest-price">
+                    <?php if ($savings > 0): ?>
+                        <span class="price-strikethrough"><?= formatPrice($highestPrice) ?></span>
+                    <?php endif; ?>
+                    <?= formatPrice((float)$cheapestPrice) ?>
+                </span>
                 <span class="cheapest-store" style="color: <?= getStoreColor($cheapestStore) ?>">
                     bij <?= htmlspecialchars($cheapestStore) ?>
                 </span>
+                <?php if ($savings > 0): ?>
+                    <div class="detail-savings">
+                        Je bespaart <strong><?= formatPrice($savings) ?></strong> (<?= $savingsPercent ?>% korting)
+                    </div>
+                <?php endif; ?>
                 <?php
                 $cheapestUnitPrice = null;
                 $cheapestUnitStore = '';

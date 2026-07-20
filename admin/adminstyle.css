@@ -31,7 +31,7 @@
     /* TODO: Shape & motion */
     --radius:       12px;
     --radius-sm:    8px;
-    --transition:   0.2s ease;
+    --transition:   0.2s ease-out;
 }
 
 /* ── Base ──────────────────────────────────────────────────── */
@@ -360,7 +360,7 @@ select option {
 }
 
 .submit-btn:active {
-    transform:  translateY(0);
+    transform:  translateY(0) scale(.98);
     box-shadow: none;
 }
 
@@ -644,9 +644,14 @@ select option {
     color: var(--yellow);
 }
 
+.scrape-btn:active {
+    transform: scale(.95);
+}
+
 .scrape-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
 }
 
 .scrape-btn-all {

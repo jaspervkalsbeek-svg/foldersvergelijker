@@ -10,7 +10,7 @@ require_once __DIR__ . '/../include/functions.php';
 <title>Boodschappenlijstje — Folders Vergelijker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=<?= filemtime(__DIR__ . '/style.css') ?>">
 <style>
 .shopping-list-page .container{max-width:700px}
 .shopping-list-page .hero{padding-bottom:32px}
@@ -20,18 +20,21 @@ require_once __DIR__ . '/../include/functions.php';
 .product-input-row{display:flex;gap:10px;margin-bottom:12px}
 .product-input-row input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 14px;color:var(--text);font-size:.92rem;font-family:inherit;outline:none;transition:border-color var(--transition)}
 .product-input-row input:focus{border-color:var(--yellow)}
-.product-input-row button{background:var(--yellow);color:#000;border:none;border-radius:var(--radius-sm);padding:11px 18px;font-weight:700;cursor:pointer;transition:opacity var(--transition);white-space:nowrap;font-size:.88rem}
+.product-input-row button{background:var(--yellow);color:#000;border:none;border-radius:var(--radius-sm);padding:11px 18px;font-weight:700;cursor:pointer;transition:all var(--transition);white-space:nowrap;font-size:.88rem}
 .product-input-row button:hover{opacity:.9}
+.product-input-row button:active{transform:scale(.95)}
 .product-list{list-style:none;margin:0 0 16px}
 .product-list li{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:6px;margin:4px 0;background:var(--surface);font-size:.9rem}
 .product-list li span{flex:1}
 .remove-btn{background:none;border:none;color:#ef5350;cursor:pointer;font-size:1.1rem;padding:2px 6px;border-radius:4px;transition:all var(--transition)}
 .remove-btn:hover{background:rgba(239,83,80,.15)}
+.remove-btn:active{transform:scale(.9)}
 .sl-email{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 14px;color:var(--text);font-size:.92rem;font-family:inherit;outline:none;transition:border-color var(--transition);margin-bottom:16px}
 .sl-email:focus{border-color:var(--yellow)}
-.send-btn{width:100%;background:var(--yellow);color:#000;border:none;border-radius:var(--radius);padding:14px;font-size:1rem;font-weight:700;cursor:pointer;transition:opacity var(--transition)}
+.send-btn{width:100%;background:var(--yellow);color:#000;border:none;border-radius:var(--radius);padding:14px;font-size:1rem;font-weight:700;cursor:pointer;transition:all var(--transition)}
 .send-btn:hover{opacity:.9}
-.send-btn:disabled{opacity:.4;cursor:not-allowed}
+.send-btn:active{transform:scale(.95)}
+.send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
 .autocomplete-wrap{position:relative}
 .autocomplete-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius-sm) var(--radius-sm);z-index:10;max-height:200px;overflow-y:auto;display:none}
 .autocomplete-dropdown div{padding:10px 14px;cursor:pointer;font-size:.88rem;transition:background var(--transition)}
@@ -62,12 +65,15 @@ require_once __DIR__ . '/../include/functions.php';
 
 <div class="container shopping-list-page">
   <div class="hero">
-    <h1>Boodschappenlijstje</h1>
-    <p>Voeg producten toe, vul je email in en ontvang een overzicht van de beste aanbiedingen</p>
+    <h1>Jouw boodschappenlijstje</h1>
+    <p>Voeg producten toe en ontvang de beste aanbiedingen in je inbox</p>
   </div>
 
   <div class="sl-section">
-    <h2>Producten toevoegen</h2>
+    <div class="sl-progress-header">
+      <h2>Producten toevoegen</h2>
+      <span class="sl-progress-badge" id="progressBadge">0 producten</span>
+    </div>
     <p class="sub">Typ productnamen één voor één of plak een lijst. Voeg zoveel toe als je wilt.</p>
 
     <div class="product-input-row autocomplete-wrap">
@@ -80,9 +86,9 @@ require_once __DIR__ . '/../include/functions.php';
 
   <div class="sl-section">
     <h2>Email adres</h2>
-    <p class="sub">Vul je email in om het overzicht te ontvangen</p>
+    <p class="sub">Ontvang direct het goedkoopste boodschappenoverzicht in je inbox - zodat je nooit te veel betaalt</p>
     <input type="email" id="emailInput" class="sl-email" placeholder="jouw@email.nl">
-    <button id="sendBtn" class="send-btn" disabled>📧 Verstuur overzicht</button>
+    <button id="sendBtn" class="send-btn" disabled>Bekijk mijn beste aanbiedingen</button>
     <div class="spinner" id="spinner"></div>
     <div id="resultBox" class="result-box"></div>
   </div>
@@ -122,13 +128,18 @@ function removeProduct(name) {
 }
 
 function renderList() {
+  const badge = document.getElementById('progressBadge');
   if (products.length === 0) {
     productList.innerHTML = '<li style="color:var(--text-muted);font-size:.85rem;text-align:center;padding:12px;background:none">Nog geen producten toegevoegd</li>';
+    badge.textContent = '0 producten';
+    badge.classList.remove('has-items');
     return;
   }
   productList.innerHTML = products.map(p =>
     `<li><span>${escapeHtml(p)}</span><button class="remove-btn" onclick="removeProduct('${escapeHtml(p)}')">✕</button></li>`
   ).join('');
+  badge.textContent = `${products.length} product${products.length === 1 ? '' : 'en'}`;
+  badge.classList.add('has-items');
 }
 
 function updateSendBtn() {
@@ -211,7 +222,7 @@ sendBtn.addEventListener('click', async () => {
 
     if (json.success) {
       resultBox.className = 'result-box success';
-      resultBox.innerHTML = `<h3>✅ Verzonden!</h3><p>${json.found} van de ${json.total} producten gevonden. Check je email!</p>`;
+      resultBox.innerHTML = `<div class="success-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><h3>Verzonden!</h3><p>Jouw persoonlijke overzicht is onderweg. ${json.found} van de ${json.total} producten gevonden - check je email!</p>`;
       products = [];
       renderList();
       emailInput.value = '';

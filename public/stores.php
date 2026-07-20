@@ -33,7 +33,7 @@ $stores = $stmt->fetchAll();
     <title>Winkels – Folders Vergelijker</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=<?= filemtime(__DIR__ . '/style.css') ?>">
 </head>
 <body>
 <header class="header">
@@ -50,7 +50,7 @@ $stores = $stmt->fetchAll();
 <main class="container">
     <section class="page-header">
         <h1>Winkels</h1>
-        <p>Alle supermarkten die we volgen in Nederland en Duitsland</p>
+        <p>Alle supermarkten die we volgen - vergelijk prijzen bij <?= count($stores) ?> winkels</p>
 
         <div class="country-filter">
             <a href="stores.php" class="filter-btn <?= !$country ? 'active' : '' ?>">Alle</a>

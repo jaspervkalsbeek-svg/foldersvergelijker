@@ -5,7 +5,7 @@ require_once __DIR__ . '/../include/functions.php';
 $search  = trim($_GET['search'] ?? '');
 $storeId = (int)($_GET['store'] ?? 0);
 $catSlug = trim($_GET['cat'] ?? '');
-$country = trim($_GET['country'] ?? '');
+$country = trim($_GET['country'] ?? 'NL');
 $sort    = trim($_GET['sort'] ?? 'price_asc');
 $page    = max(1, (int)($_GET['page'] ?? 1));
 $perPage = 30;
@@ -88,7 +88,7 @@ $categories = $pdo->query("SELECT slug, name FROM categories ORDER BY name")->fe
     <title>Folders Vergelijker – Producten vergelijken</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=20260720">
 </head>
 <body>
 <header class="header">
@@ -105,12 +105,12 @@ $categories = $pdo->query("SELECT slug, name FROM categories ORDER BY name")->fe
 <main class="container">
     <section class="hero">
         <h1>Vind het goedkoopste product</h1>
-        <p>Vergelijk prijzen van alle folders uit Nederland &amp; Duitsland</p>
+        <p>Vergelijk <?= number_format($totalProducts, 0, ',', '.') ?> producten uit Nederland &amp; Duitsland en bespaar op je boodschappen</p>
 
         <form class="search-form" method="GET" action="">
             <div class="search-row">
                 <input type="text" name="search" class="search-input"
-                       placeholder="Zoek producten..." value="<?= htmlspecialchars($search) ?>">
+                       placeholder="Zoek naar producten..." value="<?= htmlspecialchars($search) ?>">
                 <button type="submit" class="search-btn">Zoeken</button>
             </div>
             <div class="filter-row">
