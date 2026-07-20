@@ -298,6 +298,10 @@ try {
     $deleted = $stmt->rowCount();
     if ($deleted > 0) $progress[] = "[cleanup] {$deleted} verouderde prijzen opgeruimd";
 
+    // Global cleanup: remove all prices older than 7 days
+    $globalDeleted = cleanupOldPrices($pdo, 7);
+    if ($globalDeleted > 0) $progress[] = "[cleanup] {$globalDeleted} oude prijzen (>7 dagen) verwijderd";
+
 } catch (Exception $e) {
     $error = 'DB fout: ' . $e->getMessage();
 }

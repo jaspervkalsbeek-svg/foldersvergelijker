@@ -110,6 +110,10 @@ if ($rc === 0 && is_array($products) && count($products) > 0) {
         $stmt->execute([(int)$storeDb['id'], $batch_time]);
         $deleted = $stmt->rowCount();
         if ($deleted > 0) $progress[] = "[cleanup] {$deleted} verouderde prijzen opgeruimd";
+
+        // Global cleanup: remove all prices older than 7 days
+        $globalDeleted = cleanupOldPrices($pdo, 7);
+        if ($globalDeleted > 0) $progress[] = "[cleanup] {$globalDeleted} oude prijzen (>7 dagen) verwijderd";
     } else {
         $error = 'Store niet gevonden in database';
     }

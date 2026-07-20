@@ -106,13 +106,25 @@ $products = $stmt->fetchAll();
             </table>
 
             <?php if ($totalPages > 1): ?>
-            <div style="display:flex;justify-content:center;gap:6px;margin-top:20px">
-                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+            <div style="display:flex;justify-content:center;gap:6px;margin-top:20px;flex-wrap:wrap">
+                <?php if ($page > 1): ?>
+                    <a href="?search=<?= urlencode($search) ?>&page=<?= $page - 1 ?>"
+                       style="padding:6px 12px;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text-dim);text-decoration:none">
+                        &larr;
+                    </a>
+                <?php endif; ?>
+                <?php for ($i = max(1, $page - 2); $i <= min($totalPages, $page + 2); $i++): ?>
                     <a href="?search=<?= urlencode($search) ?>&page=<?= $i ?>"
                        style="padding:6px 12px;background:<?= $i === $page ? 'var(--yellow-dim)' : 'var(--card)' ?>;border:1px solid var(--border);border-radius:6px;color:<?= $i === $page ? 'var(--yellow)' : 'var(--text-dim)' ?>;text-decoration:none">
                         <?= $i ?>
                     </a>
                 <?php endfor; ?>
+                <?php if ($page < $totalPages): ?>
+                    <a href="?search=<?= urlencode($search) ?>&page=<?= $page + 1 ?>"
+                       style="padding:6px 12px;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text-dim);text-decoration:none">
+                        &rarr;
+                    </a>
+                <?php endif; ?>
             </div>
             <?php endif; ?>
         <?php endif; ?>

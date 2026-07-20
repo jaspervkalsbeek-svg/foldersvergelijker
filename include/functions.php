@@ -187,6 +187,14 @@ function upsertPrice(PDO $pdo, int $productId, int $storeId, float $price, ?stri
     }
 }
 
+function cleanupOldPrices(PDO $pdo, int $days = 7): int
+{
+    $cutoff = date('Y-m-d H:i:s', strtotime("-{$days} days"));
+    $stmt = $pdo->prepare("DELETE FROM product_prices WHERE scraped_at < ?");
+    $stmt->execute([$cutoff]);
+    return $stmt->rowCount();
+}
+
 function getCategoryName(string $slug): string
 {
     $names = [
